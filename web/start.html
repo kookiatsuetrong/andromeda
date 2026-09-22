@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width" />
+		<title>Start</title>
+	</head>
+	
+	<body>
+		<section class="background"></section>
+	</body>
+	
+	<style>
+		body {
+			margin: 0; 
+			padding: 0; 
+			border: none; 
+			font-family: sans-serif;
+			background-color: #fff386;
+			
+			min-height: 100dvh;
+			
+			/*
+			background: linear-gradient(45deg, 
+					rgba(20%, 30%, 99%,  1), 
+					rgba( 0%, 99%, 70%,  .9));
+			background: linear-gradient(200deg, 
+					rgba( 0%, 50%, 99%, .75), 
+					rgba(50%,  0%, 99%, .75));
+			background: linear-gradient(45deg, 
+					rgba(20%, 99%, 80%, .75), 
+					rgba( 0%, 20%, 99%, .70),
+					rgba(99%, 10%, 40%, .80));
+			*/
+			
+			background:	linear-gradient(70deg, 
+							rgba(  0%, 20%, 99%, .40) 10%, 
+							rgba(  0%, 99%, 30%, .30),
+							rgba( 99%, 90%, 20%, .30),
+							rgba( 99%,  0%,  0%, .40)
+						);
+		}
+		.background {
+			width: 100dvw;
+			height: 100dvh;
+			/*
+			background-image: url("/background-gray.png");
+			background-size: cover;
+			*/
+		}
+		a {
+			text-decoration: none;
+			color: #aaa;
+		}
+		a:visited {
+			color: #aaa;
+		}
+		a:hover {
+			color: #333;
+			cursor: pointer;
+		}
+	</style>
+	
+	<script>
+
+		// mouse click  --> pointerdown, mousedown
+		// finger touch --> pointerdown, mousedown, touchstart
+		// pen tap      --> pointerdown, mousedown, touchstart
+
+		// mousedown     mousemove     mouseup
+		// touchstart    touchmove     touchend
+		// pointerdown   pointermove   pointerup
+		
+		var Screen = { }
+		
+		Screen.apps = [ ]
+		Screen.processNumber = 0
+		Screen.windows = [ ]
+		Screen.windowNumber = 0
+		
+		Screen.getSize = function() {
+			var result    = { }
+			result.width  = window.innerWidth
+			result.height = window.innerHeight
+			return result
+		}
+		
+		Screen.start = async function() {
+			
+			console.log("Starting Operating System")
+
+			/*
+			window.addEventListener("touchstart", e => {
+				console.log("touchstart")
+				console.log(e.touches)
+			})
+
+			window.addEventListener("pointerdown", e => {
+				console.log("pointerdown")
+				console.log(e)
+			})
+			
+			window.addEventListener("mousedown", e => {
+				console.log("mousedown")
+				console.log(e)
+			})
+			*/
+
+			window.addEventListener("mousemove",
+						e => Screen.continueMouseMoveWindow(e))
+			window.addEventListener("mouseup",
+						e => Screen.finishMouseMoveWindow(e))
+
+			window.addEventListener("touchmove", 
+						e => Screen.continueFingerMoveWindow(e))
+			window.addEventListener("touchend", 
+						e => Screen.finishFingerMoveWindow(e))
+
+		}
+		
+		Screen.closeApp = function(a) {
+			var found = -1
+			for (var i = 0; i < Screen.apps.length; i++) {
+				if (a.identifier == Screen.apps[i].identifier) {
+					found = i
+				}
+			}
+			
+			if (found >= 0) {
+				a.resolve("EXIT_SUCCESS")
+				
+				// move app detail
+				for (var i = found; i < Screen.apps.length; i++) {
+					Screen.apps[i] = Screen.apps[i + 1]
+				}
+				
+				// delete the last element
+				Screen.apps.pop()
+				
+				// TODO: remove all windows from this app
+			}
+		}
+		
+		Screen.startApp = function(f) {
+			Screen.processNumber++
+			
+			var detail = { }
+			Screen.apps.push(detail)
+			detail.identifier = Screen.processNumber
+			detail.promise = new Promise( function(resolve, reject) {
+				detail.resolve = resolve
+				detail.reject  = reject
+				f()
+			})
+			
+			return detail
+		}
+		
+		Screen.getFrontWindow = function() {
+			var m = 0
+			for (var i = 0; i < Screen.windows.length; i++) {
+				if (m < Screen.windows[i].front) {
+					m = Screen.windows[i].front
+				}
+			}
+			return m
+		}
+		
+		Screen.createWindow = function(text) {
+			Screen.windowNumber++
+			var detail = { }
+			detail.text = text
+			detail.maximize = true
+			detail.identifier = Screen.windowNumber
+			detail.front  = 1 + Screen.getFrontWindow()
+			
+			detail.element = document.createElement("section")
+			detail.element.classList.add("window")
+			
+			detail.element.style.position   = "absolute"
+			// detail.element.style.background = "rgba(255, 255, 255, .05)"
+			detail.element.style.background = "none"
+			detail.element.style.borderRadius = "1.5rem"
+			detail.element.style.border = ".5rem solid rgba(0, 0, 0, .05)"
+			detail.element.style.boxShadow = "0 0 .1rem rgba(0,0,0,.25)" +
+									", 0 0 2rem rgba(255, 255, 255, .8)"
+			detail.element.style.color     = "#333"
+			detail.element.style.display   = "block"
+			detail.element.style.overflow  = "auto"
+			
+			var size = Screen.getSize()
+			var y = (size.height - Screen.defaultHeight - 16) / 2
+			var x = (size.width  - Screen.defaultWidth  - 16) / 2
+			
+			detail.element.style.top    = y + "px"
+			detail.element.style.left   = x + "px"
+			detail.element.style.width  = Screen.defaultWidth  + "px"
+			detail.element.style.height = Screen.defaultHeight + "px"
+			
+			detail.element.style.zIndex = detail.front
+			
+			var bar = document.createElement("section")
+			bar.style.background = "rgba(255, 255, 255, .85)"
+			bar.style.padding = ".5rem 0 .5rem .5rem"
+			bar.style.margin = "0"
+			bar.innerText = text
+			detail.element.appendChild(bar)
+			
+			var maximizeButton = document.createElement("img")
+			maximizeButton.addEventListener("click", 
+										e => Screen.enlargeWindow(detail))
+			// maximizeButton.src = "/icons/up.svg"
+			maximizeButton.src = Screen.enlargeIcon
+			maximizeButton.style.margin = "-0.2rem .5rem 0 1rem"
+			maximizeButton.style.float  = "right"
+			bar.appendChild(maximizeButton)
+			
+			var restoreButton = document.createElement("img")
+			restoreButton.addEventListener("click", 
+										e => Screen.restoreWindow(detail))
+			// restoreButton.src = "/icons/down.svg"
+			restoreButton.src = Screen.restoreIcon
+			restoreButton.style.margin = "-0.2rem 0 0 1rem"
+			restoreButton.style.float  = "right"
+			bar.appendChild(restoreButton)
+		
+			var activateButton = document.createElement("img")
+			activateButton.addEventListener("click", 
+										e => Screen.activateWindow(detail))
+			// activateButton.src = "/icons/check.svg"
+			activateButton.src = Screen.checkIcon
+			activateButton.style.margin = "-0.2rem 0 0 1rem"
+			activateButton.style.float  = "right"
+			bar.appendChild(activateButton)
+			
+			var moveButton = document.createElement("img")
+			moveButton.addEventListener("mousedown", 
+								e => Screen.startMouseMoveWindow(e, detail))
+			
+			moveButton.addEventListener("touchstart", 
+								e => Screen.startFingerMoveWindow(e, detail))
+			// moveButton.src = "/icons/move.svg"
+			moveButton.src = Screen.moveIcon
+			moveButton.style.margin = "-0.2rem 0 0 1rem"
+			moveButton.style.float  = "right"
+			bar.appendChild(moveButton)
+			
+			Screen.windows.push(detail)
+			document.body.appendChild(detail.element)
+			
+			return detail
+		}
+		
+		Screen.startMouseMoveWindow = function(event, pane) {
+			window.moving  = pane
+			window.movingX = event.clientX
+			window.movingY = event.clientY
+			
+			var bound = pane.element.getBoundingClientRect()
+			window.startX  = bound.x
+			window.startY  = bound.y
+			
+			event.preventDefault()
+		}
+		
+		Screen.continueMouseMoveWindow = function(event) {
+			if (window.moving == null) { }
+			if (window.moving != null) {
+				var x = (event.clientX - window.movingX + window.startX)
+				var y = (event.clientY - window.movingY + window.startY)
+				window.moving.element.style.top  = y + "px"
+				window.moving.element.style.left = x + "px"
+				event.preventDefault()
+			}
+		}
+		
+		Screen.finishMouseMoveWindow = function(event) {
+			if (window.moving == null) { }
+			if (window.moving != null) {
+				window.moving = null
+				event.preventDefault()
+			}
+		}
+		
+		Screen.startFingerMoveWindow = function(event, pane) {
+			if (event.changedTouches.length == 0) return
+			
+			window.moving  = pane
+			window.touchIdentifier = event.changedTouches[0].identifier
+			window.movingX = event.changedTouches[0].screenX
+			window.movingY = event.changedTouches[0].screenY
+			
+			var bound = pane.element.getBoundingClientRect()
+			window.startX  = bound.x
+			window.startY  = bound.y
+			
+			event.preventDefault()
+		}
+		
+		Screen.continueFingerMoveWindow = function(event) {
+			if (event.touches.length == 0) return
+			if (window.moving == null) { }
+			
+			if (window.moving != null) {
+				var index = -1
+				for (var i = 0; i < event.touches.length; i++) {
+					var current = event.touches[i].identifier
+					if (current == window.touchIdentifier) {
+						index = i
+					}
+				}
+				if (index >= 0) {
+					var x = (event.touches[index].screenX - 
+								window.movingX + window.startX)
+					var y = (event.touches[index].screenY - 
+								window.movingY + window.startY)
+					window.moving.element.style.top  = y + "px"
+					window.moving.element.style.left = x + "px"
+					// event.preventDefault()
+				}
+				
+			}
+		}
+		
+		Screen.finishFingerMoveWindow = function(event) {
+			if (window.moving == null) { }
+			if (window.moving != null) {
+				var index = -1
+				for (var i = 0; i < event.changedTouches.length; i++) {
+					var current = event.changedTouches[i].identifier
+					if (current == window.touchIdentifier) {
+						index = i
+					}
+				}
+				if (index >= 0) {
+					window.moving = null
+					event.preventDefault()
+				}
+			}
+		}
+		
+		Screen.activateWindow = function(pane) {
+			var found = -1
+			for (var i = 0; i < Screen.windows.length; i++) {
+				if (pane.identfier = Screen.windows[i].identifier) {
+					found = i
+				}
+			}
+			
+			if (found >= 0) {
+				pane.front = 1 + Screen.getFrontWindow()
+				pane.element.style.zIndex = pane.front
+			}
+		}
+		
+		Screen.enlargeWindow = function(pane) {
+			pane.element.style.top    = "1rem"
+			pane.element.style.left   = "1rem"
+			pane.element.style.width  = "calc(100dvw - 3rem)"
+			pane.element.style.height = "calc(100dvh - 3rem)"
+		}
+		
+		Screen.restoreWindow = function(pane) {
+			var size = Screen.getSize()
+			var y = (size.height - Screen.defaultHeight) / 2
+			var x = (size.width  - Screen.defaultWidth)  / 2
+
+			pane.element.style.top    = y - 8 + "px"
+			pane.element.style.left   = x - 8 + "px"
+			pane.element.style.width  = Screen.defaultWidth  + "px"
+			pane.element.style.height = Screen.defaultHeight + "px"
+		}
+		
+		Screen.centerWindow = function(pane) {
+			var size = Screen.getSize()
+			var bound = pane.element.getBoundingClientRect()
+			
+			var x = (size.width - bound.width)  / 2
+
+			pane.element.style.left   = x + "px"
+		}
+		
+		Screen.defaultWidth  = 640
+		Screen.defaultHeight = 480
+		
+		
+		Screen.enlargeIcon = "data:image/svg+xml," + 
+				encodeURIComponent(
+				`<svg xmlns="http://www.w3.org/2000/svg"
+					width="24" height="24" 
+					viewBox="0 0 24 24" fill="none" stroke="#333" 
+					stroke-width="2" stroke-linecap="round"
+					stroke-linejoin="round">
+					<path d="M7 17l9.2-9.2M17 17V7H7"/>
+				</svg>`)
+	
+	
+		Screen.restoreIcon = "data:image/svg+xml," + 
+				encodeURIComponent(
+				`<svg xmlns="http://www.w3.org/2000/svg"
+					width="24" height="24" 
+					viewBox="0 0 24 24" fill="none" stroke="#333" 
+					stroke-width="2" stroke-linecap="round" 
+					stroke-linejoin="round">
+					<path d="M17 7l-9.2 9.2M7 7v10h10"/>
+				</svg>`)
+
+		Screen.checkIcon = "data:image/svg+xml," + 
+				encodeURIComponent(
+				`<svg xmlns="http://www.w3.org/2000/svg" 
+					width="24" height="24" 
+					viewBox="0 0 24 24" fill="none" stroke="#333" 
+					stroke-width="2" stroke-linecap="round" 
+					stroke-linejoin="round">
+					<polyline points="20 6 9 17 4 12"></polyline>
+				</svg>`)
+	
+		Screen.moveIcon = "data:image/svg+xml," + 
+				encodeURIComponent(
+				`<svg xmlns="http://www.w3.org/2000/svg" 
+					width="24" height="24" 
+					viewBox="0 0 24 24" fill="none" stroke="#333" 
+					stroke-width="2" stroke-linecap="round" 
+					stroke-linejoin="round">
+					<path d="M5.2 9l-3 3 3 3M9 5.2l3-3 3 
+						3M15 18.9l-3 3-3-3M18.9 9l3 3-3 
+						3M3.3 12h17.4M12 3.2v17.6" />
+				</svg>`)
+	
+		Screen.start()
+	
+		var empty = Screen.startApp(empty)
+		
+		function empty() {
+			var main = Screen.createWindow("Sample")
+		}
+		
+		var photoViewer = Screen.startApp(photoViewer)
+		
+		async function photoViewer() {
+			
+			var location = "https://api.coinbase.com" +
+							"/v2/prices/xau-usd/spot"
+			var response = await fetch(location)
+			var text     = await response.text()
+			console.log(text)
+			
+			var viewer = Screen.createWindow("Photo Viewer")
+			
+			var image = document.createElement("img")
+			image.src = "/sample-photo.jpg"
+			image.style.display  = "block"
+			image.style.overflow = "hidden"
+			image.style.width    = "100%"
+
+			viewer.element.appendChild(image)
+		}
+	   
+	</script>
+</html>
