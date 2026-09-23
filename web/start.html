@@ -42,10 +42,8 @@
 		.background {
 			width: 100dvw;
 			height: 100dvh;
-			/*
 			background-image: url("/background-gray.png");
 			background-size: cover;
-			*/
 		}
 		a {
 			text-decoration: none;
@@ -199,16 +197,16 @@
 			detail.element.style.zIndex = detail.front
 			
 			var bar = document.createElement("section")
-			bar.style.background = "rgba(255, 255, 255, .85)"
-			bar.style.padding = ".5rem 0 .5rem .5rem"
+			bar.style.background = "rgba(255, 255, 255, .90)"
+			bar.style.padding = ".5rem 0 .5rem .75rem"
 			bar.style.margin = "0"
+			bar.style.borderBottom = ".15rem solid rgba(0, 0, 0, 0.05)"
 			bar.innerText = text
 			detail.element.appendChild(bar)
 			
 			var maximizeButton = document.createElement("img")
 			maximizeButton.addEventListener("click", 
 										e => Screen.enlargeWindow(detail))
-			// maximizeButton.src = "/icons/up.svg"
 			maximizeButton.src = Screen.enlargeIcon
 			maximizeButton.style.margin = "-0.2rem .5rem 0 1rem"
 			maximizeButton.style.float  = "right"
@@ -217,7 +215,6 @@
 			var restoreButton = document.createElement("img")
 			restoreButton.addEventListener("click", 
 										e => Screen.restoreWindow(detail))
-			// restoreButton.src = "/icons/down.svg"
 			restoreButton.src = Screen.restoreIcon
 			restoreButton.style.margin = "-0.2rem 0 0 1rem"
 			restoreButton.style.float  = "right"
@@ -226,7 +223,6 @@
 			var activateButton = document.createElement("img")
 			activateButton.addEventListener("click", 
 										e => Screen.activateWindow(detail))
-			// activateButton.src = "/icons/check.svg"
 			activateButton.src = Screen.checkIcon
 			activateButton.style.margin = "-0.2rem 0 0 1rem"
 			activateButton.style.float  = "right"
@@ -238,11 +234,14 @@
 			
 			moveButton.addEventListener("touchstart", 
 								e => Screen.startFingerMoveWindow(e, detail))
-			// moveButton.src = "/icons/move.svg"
 			moveButton.src = Screen.moveIcon
 			moveButton.style.margin = "-0.2rem 0 0 1rem"
 			moveButton.style.float  = "right"
 			bar.appendChild(moveButton)
+			
+			var container = document.createElement("section")
+			container.classList.add("container")
+			detail.element.appendChild(container)
 			
 			Screen.windows.push(detail)
 			document.body.appendChild(detail.element)
@@ -426,14 +425,33 @@
 						3M3.3 12h17.4M12 3.2v17.6" />
 				</svg>`)
 	
+		Screen.addElement = function(pane, element) {
+			var container = pane.element.querySelector(".container")
+			container.appendChild(element)
+		}
+	
 		Screen.start()
 	
 		var empty = Screen.startApp(empty)
 		
 		function empty() {
-			var main = Screen.createWindow("Sample")
+			var main = Screen.createWindow("Empty")
 		}
 		
+		var sample = Screen.startApp(sample)
+		function sample() {
+			var main = Screen.createWindow("Sample")
+			var button = document.createElement("button")
+			button.innerText = "Test"
+			button.addEventListener("click", showMessage)
+			Screen.addElement(main, button)
+		}
+		
+		function showMessage(e) {
+			console.log(e)
+		}
+		
+		/*
 		var photoViewer = Screen.startApp(photoViewer)
 		
 		async function photoViewer() {
@@ -454,6 +472,27 @@
 
 			viewer.element.appendChild(image)
 		}
-	   
+		*/
 	</script>
+	<style>
+		.window .container {
+			background: rgba(255, 255, 255, .90);
+			/* background: aquamarine; */
+			height: calc(100% - 3.8068rem);
+			padding: .75rem;
+		}
+		button {
+			background: #ccc;
+			color: #333;
+			border: .1rem solid #aaa;
+			padding: .5rem 1rem;
+			border-radius: .35rem;
+		}
+		button:hover {
+			background: #eee;
+		}
+		button:active {
+			border: .1rem solid #ddd;
+		}
+	</style>
 </html>
