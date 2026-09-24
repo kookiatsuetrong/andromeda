@@ -209,7 +209,7 @@
 			
 			var container = document.createElement("section")
 			container.classList.add("container")
-			container.style.background = "rgba(255, 255, 255, .9)"
+			container.style.background = "rgba(255, 255, 255, 1)"
 			container.style.height = "calc(100% - 5.7rem)"
 			container.style.padding = ".75rem"
 			container.innerHTML = text
@@ -239,9 +239,16 @@
 			
 			var p = new Promise( (resolve, reject) => {
 
+				/*
 				dialog.addEventListener("click", e => {
 					e.stopPropagation()
 				})
+
+				detail.element.addEventListener("click", e => {
+					Screen.removeWindow(detail)
+					resolve(false)
+				})
+				*/
 
 				okButton.addEventListener("click", e => {
 					e.stopPropagation()
@@ -255,10 +262,6 @@
 					resolve(false)
 				})
 				
-				detail.element.addEventListener("click", e => {
-					Screen.removeWindow(detail)
-					resolve(false)
-				})
 			})
 
 			return p
@@ -596,10 +599,8 @@
 			
 			var image = document.createElement("img")
 			image.src = "/sample-photo.jpg"
-			image.style.display  = "block"
-			image.style.width    = "100%"
-
-			// viewer.element.appendChild(image)
+			image.style.display = "block"
+			image.style.width   = "100%"
 			
 			var container = viewer.element.querySelector(".container")
 			container.style.padding = 0
