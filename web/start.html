@@ -17,6 +17,7 @@
 			font-family: sans-serif;
 			background-color: #fff386;
 			
+			font-size: 1.25rem;
 			min-height: 100dvh;
 			
 			/*
@@ -163,6 +164,106 @@
 			return m
 		}
 		
+		Screen.createDialog = function(text) {
+			Screen.windowNumber++
+			var detail = { }
+			detail.text = text
+			detail.maximize = true
+			detail.identifier = Screen.windowNumber
+			detail.front  = 1 + Screen.getFrontWindow()
+			
+			var size = Screen.getSize()
+			
+			detail.element = document.createElement("section")
+			detail.element.classList.add("window")
+			detail.element.style.top    = 0 + "px"
+			detail.element.style.left   = 0 + "px"
+			detail.element.style.width  = size.width  + "px"
+			detail.element.style.height = size.height + "px"
+			detail.element.style.position = "absolute"
+			detail.element.style.background = "rgba(0,0,0,.5)"
+			detail.element.style.zIndex = detail.front
+			
+			var dialog = document.createElement("section")
+			dialog.classList.add("dialog")
+			
+			dialog.style.position   = "absolute"
+			dialog.style.background = "none"
+			dialog.style.borderRadius = "1.5rem"
+			dialog.style.border = ".5rem solid rgba(0, 0, 0, .05)"
+			dialog.style.boxShadow = "0 0 .1rem rgba(0,0,0, .25)" +
+									", 0 0 4rem rgba(255,255,255, .8)"
+			dialog.style.color     = "#333"
+			dialog.style.display   = "block"
+			dialog.style.overflow  = "auto"
+			
+			var width  = 400
+			var height = 240
+			var x = (size.width  - width  - 16) / 2
+			var y = (size.height - height - 16) / 2
+			
+			dialog.style.top    = y + "px"
+			dialog.style.left   = x + "px"
+			dialog.style.width  = width  + "px"
+			dialog.style.height = height + "px"
+			
+			var container = document.createElement("section")
+			container.classList.add("container")
+			container.style.background = "rgba(255, 255, 255, .9)"
+			container.style.height = "calc(100% - 5.7rem)"
+			container.style.padding = ".75rem"
+			container.innerHTML = text
+			dialog.appendChild(container)
+			
+			var bar = document.createElement("section")
+			bar.classList.add("button-bar")
+			bar.style.background = "rgba(234, 234, 234, 1)"
+			bar.style.padding = "1rem"
+			bar.style.textAlign = "right"
+			
+			var okButton = document.createElement("button")
+			okButton.innerText = "OK"
+			okButton.style.marginLeft = ".75rem"
+			bar.appendChild(okButton)
+			
+			var cancelButton = document.createElement("button")
+			cancelButton.innerText = "Cancel"
+			cancelButton.style.marginLeft = ".75rem"
+			bar.appendChild(cancelButton)
+			
+			dialog.appendChild(bar)
+			
+			detail.element.appendChild(dialog)
+			Screen.windows.push(detail)
+			document.body.appendChild(detail.element)
+			
+			var p = new Promise( (resolve, reject) => {
+
+				dialog.addEventListener("click", e => {
+					e.stopPropagation()
+				})
+
+				okButton.addEventListener("click", e => {
+					e.stopPropagation()
+					Screen.removeWindow(detail)
+					resolve(true)
+				})
+				
+				cancelButton.addEventListener("click", e => {
+					e.stopPropagation()
+					Screen.removeWindow(detail)
+					resolve(false)
+				})
+				
+				detail.element.addEventListener("click", e => {
+					Screen.removeWindow(detail)
+					resolve(false)
+				})
+			})
+
+			return p
+		}
+		
 		Screen.createWindow = function(text) {
 			Screen.windowNumber++
 			var detail = { }
@@ -180,7 +281,7 @@
 			detail.element.style.borderRadius = "1.5rem"
 			detail.element.style.border = ".5rem solid rgba(0, 0, 0, .05)"
 			detail.element.style.boxShadow = "0 0 .1rem rgba(0,0,0,.25)" +
-									", 0 0 2rem rgba(255, 255, 255, .8)"
+									", 0 0 4rem rgba(255, 255, 255, .8)"
 			detail.element.style.color     = "#333"
 			detail.element.style.display   = "block"
 			detail.element.style.overflow  = "auto"
@@ -198,7 +299,7 @@
 			
 			var bar = document.createElement("section")
 			bar.style.background = "rgba(255, 255, 255, .90)"
-			bar.style.padding = ".5rem 0 .5rem .75rem"
+			bar.style.padding = ".25rem 0 .25rem .6rem"
 			bar.style.margin = "0"
 			bar.style.borderBottom = ".15rem solid rgba(0, 0, 0, 0.05)"
 			bar.innerText = text
@@ -208,7 +309,7 @@
 			maximizeButton.addEventListener("click", 
 										e => Screen.enlargeWindow(detail))
 			maximizeButton.src = Screen.enlargeIcon
-			maximizeButton.style.margin = "-0.2rem .5rem 0 1rem"
+			maximizeButton.style.margin = "0 .25rem 0 1rem"
 			maximizeButton.style.float  = "right"
 			bar.appendChild(maximizeButton)
 			
@@ -216,7 +317,7 @@
 			restoreButton.addEventListener("click", 
 										e => Screen.restoreWindow(detail))
 			restoreButton.src = Screen.restoreIcon
-			restoreButton.style.margin = "-0.2rem 0 0 1rem"
+			restoreButton.style.margin = "0 0 0 1rem"
 			restoreButton.style.float  = "right"
 			bar.appendChild(restoreButton)
 		
@@ -224,7 +325,7 @@
 			activateButton.addEventListener("click", 
 										e => Screen.activateWindow(detail))
 			activateButton.src = Screen.checkIcon
-			activateButton.style.margin = "-0.2rem 0 0 1rem"
+			activateButton.style.margin = "0 0 0 1rem"
 			activateButton.style.float  = "right"
 			bar.appendChild(activateButton)
 			
@@ -235,12 +336,15 @@
 			moveButton.addEventListener("touchstart", 
 								e => Screen.startFingerMoveWindow(e, detail))
 			moveButton.src = Screen.moveIcon
-			moveButton.style.margin = "-0.2rem 0 0 1rem"
+			moveButton.style.margin = "0 0 0 1rem"
 			moveButton.style.float  = "right"
 			bar.appendChild(moveButton)
 			
 			var container = document.createElement("section")
 			container.classList.add("container")
+			container.style.background = "rgba(255, 255, 255, .9)"
+			container.style.height = "calc(100% - 3.56rem)"
+			container.style.padding = ".75rem"
 			detail.element.appendChild(container)
 			
 			Screen.windows.push(detail)
@@ -337,6 +441,32 @@
 			}
 		}
 		
+		Screen.removeWindow = function(pane) {
+			var found = -1
+			for (var i = 0; i < Screen.windows.length; i++) {
+				if (pane.identfier = Screen.windows[i].identifier) {
+					found = i
+				}
+			}
+
+			if (found >= 0) {
+				
+				for (var i = found; i < Screen.windows.length; i++) {
+					Screen.windows[i] = Screen[i + 1]
+				}
+				Screen.windows.pop()
+				
+				pane.element.style.opacity = 0
+				pane.element.style.transition = ".2s opacity linear"
+					
+				setTimeout( function() {
+					pane.element.style.display = "none"
+					document.body.removeChild(pane.element)
+				}, 200)
+			
+			}
+		}
+		
 		Screen.activateWindow = function(pane) {
 			var found = -1
 			for (var i = 0; i < Screen.windows.length; i++) {
@@ -380,7 +510,6 @@
 		
 		Screen.defaultWidth  = 640
 		Screen.defaultHeight = 480
-		
 		
 		Screen.enlargeIcon = "data:image/svg+xml," + 
 				encodeURIComponent(
@@ -429,7 +558,7 @@
 			var container = pane.element.querySelector(".container")
 			container.appendChild(element)
 		}
-	
+
 		Screen.start()
 	
 		var empty = Screen.startApp(empty)
@@ -443,12 +572,14 @@
 			var main = Screen.createWindow("Sample")
 			var button = document.createElement("button")
 			button.innerText = "Test"
-			button.addEventListener("click", showMessage)
+			button.addEventListener("click", testDialog)
 			Screen.addElement(main, button)
 		}
 		
-		function showMessage(e) {
+		async function testDialog(e) {
 			console.log(e)
+			var result = await Screen.createDialog("Hello World")
+			console.log("result = " + result)
 		}
 		
 		var photoViewer = Screen.startApp(photoViewer)
@@ -466,7 +597,6 @@
 			var image = document.createElement("img")
 			image.src = "/sample-photo.jpg"
 			image.style.display  = "block"
-			image.style.overflow = "hidden"
 			image.style.width    = "100%"
 
 			// viewer.element.appendChild(image)
@@ -475,14 +605,9 @@
 			container.style.padding = 0
 			Screen.addElement(viewer, image)
 		}
+		
 	</script>
 	<style>
-		.window .container {
-			background: rgba(255, 255, 255, .90);
-			/* background: aquamarine; */
-			height: calc(100% - 3.8068rem);
-			padding: .75rem;
-		}
 		button {
 			background: #ccc;
 			color: #333;
