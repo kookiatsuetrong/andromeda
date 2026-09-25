@@ -3,6 +3,7 @@
 	<head>
 		<meta name="viewport" content="width=device-width" />
 		<title>Start</title>
+		<link rel="stylesheet" href="/normalize.css" />
 	</head>
 	
 	<body>
@@ -17,7 +18,7 @@
 			font-family: sans-serif;
 			background-color: #fff386;
 			
-			font-size: 1.25rem;
+			font-size: 1rem;
 			min-height: 100dvh;
 			overflow: hidden;
 			
@@ -72,8 +73,8 @@
 		
 		var Screen = { }
 		
-		Screen.apps = [ ]
-		Screen.processNumber = 0
+		// Screen.apps = [ ]
+		// Screen.processNumber = 0
 		Screen.windows = [ ]
 		Screen.windowNumber = 0
 		
@@ -125,6 +126,7 @@
 			document.body.style.fontFamily = "open-sans, sans-serif"
 		}
 		
+		/*
 		Screen.closeApp = function(a) {
 			var found = -1
 			for (var i = 0; i < Screen.apps.length; i++) {
@@ -148,20 +150,26 @@
 			}
 		}
 		
+		Screen.closeAppFromWindow = function(panel) {
+			Screen.removeWindow(panel)
+		}
+	
 		Screen.startApp = function(f) {
 			Screen.processNumber++
 			
-			var detail = { }
-			Screen.apps.push(detail)
-			detail.identifier = Screen.processNumber
-			detail.promise = new Promise( function(resolve, reject) {
-				detail.resolve = resolve
-				detail.reject  = reject
+			var a = { }
+			Screen.apps.push(a)
+			a.identifier = Screen.processNumber
+			a.promise = new Promise( function(resolve, reject) {
+				a.resolve = resolve
+				a.reject  = reject
 				f()
 			})
 			
-			return detail
+			return a
 		}
+		*/
+		
 		
 		Screen.getFrontWindow = function() {
 			var m = 0
@@ -210,6 +218,7 @@
 			var height = 240
 			var x = (size.width  - width  - 16) / 2
 			var y = (size.height - height - 16) / 2
+			y = 120
 			
 			dialog.style.top    = y + "px"
 			dialog.style.left   = x + "px"
@@ -219,7 +228,7 @@
 			var container = document.createElement("section")
 			container.classList.add("container")
 			container.style.background = "rgba(255, 255, 255, 1)"
-			container.style.height = "calc(100% - 5.675rem)"
+			container.style.height = "calc(100% - 5.85rem)"
 			container.style.padding = ".75rem"
 			container.innerHTML = text
 			dialog.appendChild(container)
@@ -294,7 +303,7 @@
 			detail.element.style.boxShadow = "0 0 .1rem rgba(0,0,0,.25)" +
 									", 0 0 4rem rgba(255, 255, 255, .8)"
 			detail.element.style.color     = "#333"
-			detail.element.style.display   = "block"
+			detail.element.style.display   = "none"
 			detail.element.style.overflow  = "auto"
 			
 			var size = Screen.getSize()
@@ -310,17 +319,26 @@
 			
 			var bar = document.createElement("section")
 			bar.style.background = "rgba(234, 234, 234, 1)"
-			bar.style.padding = ".25rem 0 .25rem .6rem"
+			bar.style.padding = ".5rem 0 .5rem .6rem"
 			bar.style.margin = "0"
-			bar.style.borderBottom = ".15rem solid rgba(0, 0, 0, 0.05)"
+			// bar.style.borderBottom = ".15rem solid rgba(0, 0, 0, 0.05)"
+			bar.style.fontSize = "1.1rem"
 			bar.innerText = text
 			detail.element.appendChild(bar)
+			
+			var closeButton = document.createElement("img")
+			closeButton.addEventListener("click", 
+										e => Screen.removeWindow(detail))
+			closeButton.src = Screen.closeIcon
+			closeButton.style.margin = "-.1rem .5rem 0 1rem"
+			closeButton.style.float  = "right"
+			bar.appendChild(closeButton)
 			
 			var maximizeButton = document.createElement("img")
 			maximizeButton.addEventListener("click", 
 										e => Screen.enlargeWindow(detail))
 			maximizeButton.src = Screen.enlargeIcon
-			maximizeButton.style.margin = ".15rem .5rem 0 1rem"
+			maximizeButton.style.margin = "-.1rem 0 0 1rem"
 			maximizeButton.style.float  = "right"
 			bar.appendChild(maximizeButton)
 			
@@ -328,7 +346,7 @@
 			restoreButton.addEventListener("click", 
 										e => Screen.restoreWindow(detail))
 			restoreButton.src = Screen.restoreIcon
-			restoreButton.style.margin = ".15rem 0 0 1rem"
+			restoreButton.style.margin = "-.1rem 0 0 1rem"
 			restoreButton.style.float  = "right"
 			bar.appendChild(restoreButton)
 		
@@ -336,7 +354,7 @@
 			activateButton.addEventListener("click", 
 										e => Screen.activateWindow(detail))
 			activateButton.src = Screen.checkIcon
-			activateButton.style.margin = ".15rem 0 0 1rem"
+			activateButton.style.margin = "-.1rem 0 0 1rem"
 			activateButton.style.float  = "right"
 			bar.appendChild(activateButton)
 			
@@ -347,19 +365,26 @@
 			moveButton.addEventListener("touchstart", 
 								e => Screen.startFingerMoveWindow(e, detail))
 			moveButton.src = Screen.moveIcon
-			moveButton.style.margin = ".15rem 0 0 1rem"
+			moveButton.style.margin = "-.1rem 0 0 1rem"
 			moveButton.style.float  = "right"
 			bar.appendChild(moveButton)
 			
 			var container = document.createElement("section")
 			container.classList.add("container")
 			container.style.background = "rgba(255, 255, 255, .9)"
-			container.style.height = "calc(100% - 3.85rem)"
+			container.style.height = "calc(100% - 3.8rem)"
 			container.style.padding = ".75rem"
 			detail.element.appendChild(container)
 			
 			Screen.windows.push(detail)
 			document.body.appendChild(detail.element)
+			
+			detail.element.style.opacity = 0
+			detail.element.style.display = "block"
+			detail.element.style.transition = "opacity .2s linear"
+			setTimeout( e => {
+				detail.element.style.opacity = 1
+			}, 200)
 			
 			return detail
 		}
@@ -468,7 +493,7 @@
 				Screen.windows.pop()
 				
 				pane.element.style.opacity = 0
-				pane.element.style.transition = ".2s opacity linear"
+				pane.element.style.transition = "opacity .2s linear"
 					
 				setTimeout( function() {
 					pane.element.style.display = "none"
@@ -565,6 +590,17 @@
 						3M3.3 12h17.4M12 3.2v17.6" />
 				</svg>`)
 	
+		Screen.closeIcon = "data:image/svg+xml," + 
+				encodeURIComponent(
+				`<svg xmlns="http://www.w3.org/2000/svg" 
+					width="24" height="24" 
+					viewBox="0 0 24 24" fill="none" stroke="#333" 
+					stroke-width="2" stroke-linecap="round" 
+					stroke-linejoin="round">
+					<line x1="18" y1="6" x2="6" y2="18" />
+					<line x1="6" y1="6" x2="18" y2="18" />
+				</svg>`)
+	
 		Screen.addElement = function(pane, element) {
 			var container = pane.element.querySelector(".container")
 			container.appendChild(element)
@@ -572,14 +608,15 @@
 		
 		Screen.start()
 	
-		var empty = Screen.startApp(empty)
+		// createEmptyApp()
+		createSampleApp()
+		// createPhotoViewer()
 		
-		function empty() {
+		function createEmptyApp() {
 			var main = Screen.createWindow("Empty")
 		}
 		
-		var sample = Screen.startApp(sample)
-		function sample() {
+		function createSampleApp() {
 			var main = Screen.createWindow("Sample")
 			var button = document.createElement("button")
 			button.innerText = "Test"
@@ -593,10 +630,7 @@
 			console.log("result = " + result)
 		}
 		
-		var photoViewer = Screen.startApp(photoViewer)
-		
-		async function photoViewer() {
-			
+		async function createPhotoViewer() {
 			var location = "https://api.coinbase.com" +
 							"/v2/prices/xau-usd/spot"
 			var response = await fetch(location)
