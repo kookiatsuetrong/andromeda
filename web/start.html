@@ -114,6 +114,14 @@
 			window.addEventListener("touchend", 
 						e => Screen.finishFingerMoveWindow(e))
 
+			Screen.font = new FontFace("open-sans", 
+								"url(/open-sans/OpenSans-Regular.ttf)",
+								{ weight: 400 }
+							)
+
+			await Screen.font.load()
+			document.fonts.add(Screen.font)
+			document.body.style.fontFamily = "open-sans, sans-serif"
 		}
 		
 		Screen.closeApp = function(a) {
@@ -560,7 +568,7 @@
 			var container = pane.element.querySelector(".container")
 			container.appendChild(element)
 		}
-
+		
 		Screen.start()
 	
 		var empty = Screen.startApp(empty)
