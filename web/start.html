@@ -62,6 +62,23 @@
 	</style>
 	
 	<script>
+		
+		
+		// createEmptyApp()
+		// createSampleApp()
+		// createPhotoViewer()
+		
+		setTimeout( e => {
+			
+			Screen.addApp("Empty",      e => createEmptyApp()    )
+			Screen.addApp("Sample",     e => createSampleApp()   )
+			Screen.addApp("Photo View", e => createPhotoViewer() )
+
+			for (var i = 0; i < 5; i++) {
+				// Screen.addApp("Test", e => console.log(e) )
+			}
+		}, 500)
+		
 
 		// mouse click  --> pointerdown, mousedown
 		// finger touch --> pointerdown, mousedown, touchstart
@@ -124,6 +141,8 @@
 			await Screen.font.load()
 			document.fonts.add(Screen.font)
 			document.body.style.fontFamily = "open-sans, sans-serif"
+			
+			Screen.createLauncher()
 		}
 		
 		/*
@@ -318,7 +337,7 @@
 			detail.element.style.zIndex = detail.front
 			
 			var bar = document.createElement("section")
-			bar.style.background = "rgba(234, 234, 234, 1)"
+			bar.style.background = "rgba(255, 255, 255, .80)"
 			bar.style.padding = ".5rem 0 .5rem .6rem"
 			bar.style.margin = "0"
 			// bar.style.borderBottom = ".15rem solid rgba(0, 0, 0, 0.05)"
@@ -537,15 +556,88 @@
 		
 		Screen.centerWindow = function(pane) {
 			var size = Screen.getSize()
-			var bound = pane.element.getBoundingClientRect()
-			
+			var bound = pane.element.getBoundingClientRect()			
 			var x = (size.width - bound.width)  / 2
-
 			pane.element.style.left   = x + "px"
 		}
 		
 		Screen.defaultWidth  = 480
 		Screen.defaultHeight = 360
+		
+		Screen.addApp = function(name, f) {
+			var index = -1
+			for (var i = 0; i < Screen.windows.length; i++) {
+				if (Screen.windows[i].text == "Launcher") {
+					index = i
+				}
+			}
+			if (index >= 0) {
+				var icon = document.createElement("img")
+				icon.src = Screen.appIcon
+				
+				var element = document.createElement("button")
+				element.style.border = "none"
+				element.style.background = "white"
+				element.style.borderRadius = ".5rem"
+				element.style.margin = "0 1rem"
+				element.appendChild(icon)
+				
+				element.addEventListener("click", e => f(e))
+				
+				
+				Screen.windows[index].element.appendChild(element)
+			}
+		}
+		
+		Screen.createLauncher = function() {
+			Screen.windowNumber++
+			var detail = { }
+			detail.text = "Launcher"
+			detail.maximize = true
+			detail.identifier = Screen.windowNumber
+			detail.front  = 1 + Screen.getFrontWindow()
+			
+			detail.element = document.createElement("section")
+			detail.element.classList.add("window")
+			
+			detail.element.style.position   = "absolute"
+			detail.element.style.background = "rgba(255,255,255,.75)"
+			detail.element.style.borderRadius = "1.5rem"
+			detail.element.style.border = "none"
+			detail.element.style.boxShadow = "0 0 .1rem rgba(0,0,0,.25)" +
+									", 0 0 4rem rgba(255, 255, 255, .8)"
+			detail.element.style.color     = "#333"
+			detail.element.style.display   = "none"
+			detail.element.style.overflow  = "auto"
+			
+			detail.element.style.padding = "1rem"
+			detail.element.style.textAlign = "center"
+			
+			var size = Screen.getSize()
+			var width = size.width - 200
+			// var height = 80
+			var y =  size.height - 120
+			var x = (size.width  - width) / 2
+			
+			detail.element.style.top    = y + "px"
+			detail.element.style.left   = x + "px"
+			detail.element.style.width  = width  + "px"
+			// detail.element.style.height = height + "px"
+			
+			detail.element.style.zIndex = detail.front
+			
+			Screen.windows.push(detail)
+			document.body.appendChild(detail.element)
+			
+			detail.element.style.opacity = 0
+			detail.element.style.display = "block"
+			detail.element.style.transition = "opacity .2s linear"
+			setTimeout( e => {
+				detail.element.style.opacity = 1
+			}, 200)
+			
+			return detail
+		}
 		
 		Screen.enlargeIcon = "data:image/svg+xml," + 
 				encodeURIComponent(
@@ -601,6 +693,17 @@
 					<line x1="6" y1="6" x2="18" y2="18" />
 				</svg>`)
 	
+		Screen.appIcon = "data:image/svg+xml," + 
+				encodeURIComponent(
+				`<svg xmlns="http://www.w3.org/2000/svg" 
+					width="24" height="24" 
+					viewBox="0 0 24 24" fill="none" stroke="#333" 
+					stroke-width="2" stroke-linecap="round" 
+					stroke-linejoin="round">
+					<rect x="3" y="3" width="18" height="18" rx="2" />
+					<path d="M3 9h18" />
+				</svg>`)
+	
 		Screen.addElement = function(pane, element) {
 			var container = pane.element.querySelector(".container")
 			container.appendChild(element)
@@ -608,10 +711,6 @@
 		
 		Screen.start()
 	
-		// createEmptyApp()
-		createSampleApp()
-		// createPhotoViewer()
-		
 		function createEmptyApp() {
 			var main = Screen.createWindow("Empty")
 		}
