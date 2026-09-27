@@ -63,11 +63,6 @@
 	
 	<script>
 		
-		
-		// createEmptyApp()
-		// createSampleApp()
-		// createPhotoViewer()
-		
 		setTimeout( e => {
 			
 			Screen.addApp("Empty",      e => createEmptyApp()    )
@@ -579,64 +574,69 @@
 				element.style.border = "none"
 				element.style.background = "white"
 				element.style.borderRadius = ".5rem"
-				element.style.margin = "0 1rem"
+				element.style.margin = ".5rem .25rem"
+				element.style.padding = "0"
+				element.style.width  = "2.5rem"
+				element.style.height = "2.5rem"
 				element.appendChild(icon)
-				
 				element.addEventListener("click", e => f(e))
 				
-				
-				Screen.windows[index].element.appendChild(element)
+				var bar = Screen.windows[index].element.
+									querySelector(".launcher")
+				bar.appendChild(element)
 			}
 		}
 		
 		Screen.createLauncher = function() {
 			Screen.windowNumber++
-			var detail = { }
-			detail.text = "Launcher"
-			detail.maximize = true
-			detail.identifier = Screen.windowNumber
-			detail.front  = 1 + Screen.getFrontWindow()
+			var panel = { }
+			panel.text = "Launcher"
+			panel.maximize = true
+			panel.identifier = Screen.windowNumber
+			panel.front  = 1 + Screen.getFrontWindow()
 			
-			detail.element = document.createElement("section")
-			detail.element.classList.add("window")
+			panel.element = document.createElement("section")
+			panel.element.classList.add("window")
 			
-			detail.element.style.position   = "absolute"
-			detail.element.style.background = "rgba(255,255,255,.75)"
-			detail.element.style.borderRadius = "1.5rem"
-			detail.element.style.border = "none"
-			detail.element.style.boxShadow = "0 0 .1rem rgba(0,0,0,.25)" +
-									", 0 0 4rem rgba(255, 255, 255, .8)"
-			detail.element.style.color     = "#333"
-			detail.element.style.display   = "none"
-			detail.element.style.overflow  = "auto"
-			
-			detail.element.style.padding = "1rem"
-			detail.element.style.textAlign = "center"
+			panel.element.style.position   = "absolute"
+			panel.element.style.border = "none"
+			panel.element.style.display   = "none"
+			panel.element.style.overflow  = "auto"
+			panel.element.style.textAlign = "center"
 			
 			var size = Screen.getSize()
-			var width = size.width - 200
-			// var height = 80
-			var y =  size.height - 120
-			var x = (size.width  - width) / 2
+			var height = 60
+
+			panel.element.style.top    = (size.height - height - 16) + "px"
+			panel.element.style.left   = 0 + "px"
+			panel.element.style.width  = (size.width - 32)  + "px"
+			panel.element.style.height = height + "px"
 			
-			detail.element.style.top    = y + "px"
-			detail.element.style.left   = x + "px"
-			detail.element.style.width  = width  + "px"
-			// detail.element.style.height = height + "px"
+			// detail.element.style.zIndex = detail.front
+			panel.element.style.zIndex = 0
 			
-			detail.element.style.zIndex = detail.front
+			var bar = document.createElement("section")
+			bar.classList.add("launcher")
+			bar.style.background = "rgba(255,255,255, .5)"
+			bar.style.position = "relative"
+			bar.style.display = "inline-block"
+			bar.style.padding = "0 .25rem"
+			bar.style.borderRadius = "1rem"
+			/* bar.style.boxShadow = "0 0 .1rem rgba(0,0,0,.25)" +
+						", 0 0 4rem rgba(255, 255, 255, .8)" */
+			panel.element.appendChild(bar)
 			
-			Screen.windows.push(detail)
-			document.body.appendChild(detail.element)
+			Screen.windows.push(panel)
+			document.body.appendChild(panel.element)
 			
-			detail.element.style.opacity = 0
-			detail.element.style.display = "block"
-			detail.element.style.transition = "opacity .2s linear"
+			panel.element.style.opacity = 0
+			panel.element.style.display = "block"
+			panel.element.style.transition = "opacity .2s linear"
 			setTimeout( e => {
-				detail.element.style.opacity = 1
+				panel.element.style.opacity = 1
 			}, 200)
 			
-			return detail
+			return panel
 		}
 		
 		Screen.enlargeIcon = "data:image/svg+xml," + 
