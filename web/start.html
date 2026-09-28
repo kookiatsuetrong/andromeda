@@ -82,10 +82,10 @@
 		
 		setTimeout( e => {
 			
-			Screen.registerApp("Empty",          e => createEmptyApp()       )
-			Screen.registerApp("Sample",         e => createSampleApp()      )
-			Screen.registerApp("Photo View",     e => createPhotoViewer()    )
-			Screen.registerApp("Currency", e => createCurrency() )
+			Screen.registerApp("Empty",      e => createEmptyApp()    )
+			Screen.registerApp("Photo View", e => createPhotoViewer() )
+			Screen.registerApp("Currency",   e => createCurrency()    )
+			Screen.registerApp("Sample",     e => createSampleApp()   )
 			
 			/*
 			for (var i = 0; i < 5; i++) {
@@ -96,20 +96,6 @@
 		
 		function createEmptyApp() {
 			var main = Screen.createWindow("Minimal")
-		}
-		
-		function createSampleApp() {
-			var main = Screen.createWindow("Sample")
-			var button = document.createElement("button")
-			button.innerText = "Test"
-			button.addEventListener("click", testDialog)
-			Screen.addElement(main, button)
-		}
-		
-		async function testDialog(e) {
-			console.log(e)
-			var result = await Screen.createDialog("Hello World")
-			console.log("result = " + result)
 		}
 		
 		async function createPhotoViewer() {
@@ -147,23 +133,44 @@
 			
 			var items = ["BTC-USD", "ETH-USD", "XAU-USD",
 							"GBP-USD", "EUR-USD", "USD-JPY", 
-							"USD-THB"]
+							"CHF-USD", "CAD-USD", "USD-THB"]
 			
 			for (var i = 0; i < items.length; i++) {
 				var list = document.createElement("section")
 				list.classList.add("list")
+				list.classList.add(items[i])
+				list.innerHTML = items[i]
 				
 				var location = "https://api.coinbase.com" +
 								"/v2/prices/" + items[i] + "/spot"
-				var response = await fetch(location)
-				var detail   = await response.json()
-				var value    = (+detail.data.amount).toFixed(2)
-				console.log(value)
-				
-				list.innerHTML = items[i] + "<span class='light'>" +
-									value + "</span>"
+				fetch(location).then( e => e.json() ).then(e => {
+					console.log(e)
+					var symbol   = e.data.base + "-" + e.data.currency
+					var selector = "." + symbol
+					var element  = container.querySelector(selector)
+					var value    = (+e.data.amount).toFixed(2)
+					element.innerHTML = symbol +
+										"<span class='light'>" +
+										value +
+										"</span>"
+				})
+
 				Screen.addElement(main, list)
 			}
+		}
+		
+		function createSampleApp() {
+			var main = Screen.createWindow("Sample")
+			var button = document.createElement("button")
+			button.innerText = "Test"
+			button.addEventListener("click", testDialog)
+			Screen.addElement(main, button)
+		}
+		
+		async function testDialog(e) {
+			console.log(e)
+			var result = await Screen.createDialog("Hello World")
+			console.log("result = " + result)
 		}
 		
 		
