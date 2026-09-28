@@ -113,12 +113,6 @@
 		}
 		
 		async function createPhotoViewer() {
-			var location = "https://api.coinbase.com" +
-							"/v2/prices/xau-usd/spot"
-			var response = await fetch(location)
-			var text     = await response.text()
-			console.log(text)
-			
 			var viewer = Screen.createWindow("Photo Viewer")
 			
 			var image = document.createElement("img")
@@ -152,7 +146,8 @@
 			Screen.addStyle(css)
 			
 			var items = ["BTC-USD", "ETH-USD", "XAU-USD",
-							"GBP-USD", "EUR-USD", "USD-THB", "USD-JPY"]
+							"GBP-USD", "EUR-USD", "USD-JPY", 
+							"USD-THB"]
 			
 			for (var i = 0; i < items.length; i++) {
 				var list = document.createElement("section")
