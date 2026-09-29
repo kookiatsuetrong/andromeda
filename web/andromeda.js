@@ -63,12 +63,12 @@ Screen.start = async function() {
 
 	var css = `
 
-		.bar img {
+		.window .bar img {
 			border-radius: 1rem;
 			padding: .1rem;
 		}
 
-		.bar img:hover {
+		.window .bar img:hover {
 			background: #ddd;
 		}
 		.launcher img {
@@ -90,50 +90,6 @@ Screen.start = async function() {
 	Screen.createLauncher()
 }
 
-/*
-Screen.closeApp = function(a) {
-	var found = -1
-	for (var i = 0; i < Screen.apps.length; i++) {
-		if (a.identifier == Screen.apps[i].identifier) {
-			found = i
-		}
-	}
-
-	if (found >= 0) {
-		a.resolve("EXIT_SUCCESS")
-
-		// move app detail
-		for (var i = found; i < Screen.apps.length; i++) {
-			Screen.apps[i] = Screen.apps[i + 1]
-		}
-
-		// delete the last element
-		Screen.apps.pop()
-
-		// TODO: remove all windows from this app
-	}
-}
-
-Screen.closeAppFromWindow = function(panel) {
-	Screen.removeWindow(panel)
-}
-
-Screen.startApp = function(f) {
-	Screen.processNumber++
-
-	var a = { }
-	Screen.apps.push(a)
-	a.identifier = Screen.processNumber
-	a.promise = new Promise( function(resolve, reject) {
-		a.resolve = resolve
-		a.reject  = reject
-		f()
-	})
-
-	return a
-}
-*/
-
 Screen.getFrontWindow = function() {
 	var m = 0
 	for (var i = 0; i < Screen.windows.length; i++) {
@@ -146,23 +102,23 @@ Screen.getFrontWindow = function() {
 
 Screen.createDialog = function(text) {
 	Screen.windowNumber++
-	var detail = { }
-	detail.text = text
-	detail.maximize = true
-	detail.identifier = Screen.windowNumber
-	detail.front  = 1 + Screen.getFrontWindow()
+	var page = { }
+	page.text = text
+	page.maximize = true
+	page.identifier = Screen.windowNumber
+	page.front  = 1 + Screen.getFrontWindow()
 
 	var size = Screen.getSize()
 
-	detail.element = document.createElement("section")
-	detail.element.classList.add("window")
-	detail.element.style.top    = 0 + "px"
-	detail.element.style.left   = 0 + "px"
-	detail.element.style.width  = size.width  + "px"
-	detail.element.style.height = size.height + "px"
-	detail.element.style.position = "absolute"
-	detail.element.style.background = "rgba(0,0,0, .66)"
-	detail.element.style.zIndex = detail.front
+	page.element = document.createElement("section")
+	page.element.classList.add("window")
+	page.element.style.top    = 0 + "px"
+	page.element.style.left   = 0 + "px"
+	page.element.style.width  = size.width  + "px"
+	page.element.style.height = size.height + "px"
+	page.element.style.position = "absolute"
+	page.element.style.background = "rgba(0,0,0, .66)"
+	page.element.style.zIndex = page.front
 
 	var dialog = document.createElement("section")
 	dialog.classList.add("dialog")
@@ -196,27 +152,27 @@ Screen.createDialog = function(text) {
 	container.innerHTML = text
 	dialog.appendChild(container)
 
-	var bar = document.createElement("section")
-	bar.classList.add("button-bar")
-	bar.style.background = "rgba(234, 234, 234, 1)"
-	bar.style.padding = "1rem"
-	bar.style.textAlign = "right"
+	var panel = document.createElement("section")
+	panel.classList.add("button-bar")
+	panel.style.background = "rgba(234, 234, 234, 1)"
+	panel.style.padding = "1rem"
+	panel.style.textAlign = "right"
 
 	var okButton = document.createElement("button")
 	okButton.innerText = "OK"
 	okButton.style.marginLeft = ".75rem"
-	bar.appendChild(okButton)
+	panel.appendChild(okButton)
 
 	var cancelButton = document.createElement("button")
 	cancelButton.innerText = "Cancel"
 	cancelButton.style.marginLeft = ".75rem"
-	bar.appendChild(cancelButton)
+	panel.appendChild(cancelButton)
 
-	dialog.appendChild(bar)
+	dialog.appendChild(panel)
 
-	detail.element.appendChild(dialog)
-	Screen.windows.push(detail)
-	document.body.appendChild(detail.element)
+	page.element.appendChild(dialog)
+	Screen.windows.push(page)
+	document.body.appendChild(page.element)
 
 	var p = new Promise( (resolve, reject) => {
 
@@ -233,13 +189,13 @@ Screen.createDialog = function(text) {
 
 		okButton.addEventListener("click", e => {
 			e.stopPropagation()
-			Screen.removeWindow(detail)
+			Screen.removeWindow(page)
 			resolve(true)
 		})
 
 		cancelButton.addEventListener("click", e => {
 			e.stopPropagation()
-			Screen.removeWindow(detail)
+			Screen.removeWindow(page)
 			resolve(false)
 		})
 
@@ -285,7 +241,6 @@ Screen.createWindow = function(text) {
 	bar.style.background = "rgba(255, 255, 255, .80)"
 	bar.style.padding = ".5rem 0 .5rem .6rem"
 	bar.style.margin = "0"
-	// bar.style.borderBottom = ".15rem solid rgba(0, 0, 0, 0.05)"
 	bar.style.fontSize = "1.1rem"
 	bar.innerText = text
 	detail.element.appendChild(bar)
@@ -591,7 +546,7 @@ Screen.enlargeIcon = "data:image/svg+xml," +
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg"
 			width="24" height="24" 
-			viewBox="0 0 24 24" fill="none" stroke="#333" 
+			viewBox="0 0 24 24" fill="none" stroke="#888" 
 			stroke-width="2" stroke-linecap="round"
 			stroke-linejoin="round">
 			<path d="M7 17l9.2-9.2M17 17V7H7"/>
@@ -602,7 +557,7 @@ Screen.restoreIcon = "data:image/svg+xml," +
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg"
 			width="24" height="24" 
-			viewBox="0 0 24 24" fill="none" stroke="#333" 
+			viewBox="0 0 24 24" fill="none" stroke="#888" 
 			stroke-width="2" stroke-linecap="round" 
 			stroke-linejoin="round">
 			<path d="M17 7l-9.2 9.2M7 7v10h10"/>
@@ -612,7 +567,7 @@ Screen.checkIcon = "data:image/svg+xml," +
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
-			viewBox="0 0 24 24" fill="none" stroke="#333" 
+			viewBox="0 0 24 24" fill="none" stroke="#888" 
 			stroke-width="2" stroke-linecap="round" 
 			stroke-linejoin="round">
 			<polyline points="20 6 9 17 4 12"></polyline>
@@ -622,7 +577,7 @@ Screen.moveIcon = "data:image/svg+xml," +
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
-			viewBox="0 0 24 24" fill="none" stroke="#333" 
+			viewBox="0 0 24 24" fill="none" stroke="#888"
 			stroke-width="2" stroke-linecap="round" 
 			stroke-linejoin="round">
 			<path d="M5.2 9l-3 3 3 3M9 5.2l3-3 3 
@@ -634,7 +589,7 @@ Screen.closeIcon = "data:image/svg+xml," +
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
-			viewBox="0 0 24 24" fill="none" stroke="#333" 
+			viewBox="0 0 24 24" fill="none" stroke="#888" 
 			stroke-width="2" stroke-linecap="round" 
 			stroke-linejoin="round">
 			<line x1="18" y1="6" x2="6" y2="18" />
@@ -645,7 +600,7 @@ Screen.appIcon = "data:image/svg+xml," +
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
-			viewBox="0 0 24 24" fill="none" stroke="#333" 
+			viewBox="0 0 24 24" fill="none" stroke="#888" 
 			stroke-width="2" stroke-linecap="round" 
 			stroke-linejoin="round">
 			<rect x="3" y="3" width="18" height="18" rx="2" />
