@@ -4,11 +4,11 @@ Andromeda operating system for web browser.
 A simple program
 ```javascript
 
-	function createEmptyApp() {
-		var main = Screen.createWindow("Minimal")
-	}	
+function createEmptyApp() {
+	var main = Screen.createWindow("Minimal")
+}	
 
-	Screen.registerApp("Empty", e => createEmptyApp())
+Screen.registerApp("Empty", e => createEmptyApp())
 
 ```
 
