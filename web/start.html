@@ -98,7 +98,7 @@
 			var main = Screen.createWindow("Minimal")
 		}
 		
-		async function createPhotoViewer() {
+		function createPhotoViewer() {
 			var viewer = Screen.createWindow("Photo Viewer")
 			
 			var image = document.createElement("img")
@@ -111,7 +111,7 @@
 			Screen.addElement(viewer, image)
 		}
 		
-		async function createCurrency() {
+		function createCurrency() {
 			var main = Screen.createWindow("Currency")
 			var container = main.element.querySelector(".container")
 			container.classList.add("cryptocurrency")
