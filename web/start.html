@@ -87,7 +87,11 @@
 			Screen.registerApp("Photo View",  e => createPhotoViewer() )
 			Screen.registerApp("Currency",    e => createCurrency()    )
 			Screen.registerApp("Sample",      e => createSampleApp()   )
-			Screen.registerApp("Text Editor", e => createTextEditor() )
+			Screen.registerApp("Text Editor", e => createTextEditor()  )
+
+			Screen.setIcon("Text Editor", Screen.documentIcon)
+			Screen.setIcon("Photo View",  Screen.photoIcon)
+			Screen.setIcon("Currency",    Screen.signalIcon)
 		})
 		
 		function createTextEditor() {
@@ -108,11 +112,21 @@
 			editor.style.resize  = "none"
 			editor.style.width   = "calc(100% - 1.50rem)"
 			editor.style.height  = "calc(100% - 3.75rem)"
+			editor.style.fontSize   = "1rem"
 			editor.style.fontFamily = "roboto-mono, monospace"
 			
-			for (var i = 0; i < 100; i++) {
-				editor.value += "Sample " + i + "\n"
-			}
+			editor.spellcheck = false
+			editor.focus()
+			
+			editor.style.tabSize = 4
+			editor.addEventListener("keydown", e => {
+				if (e.key == "Tab") {
+					e.preventDefault()
+					editor.setRangeText("\t", 
+						editor.selectionStart, 
+						editor.selectionEnd, "end")
+				}
+			})
 			
 			main.element.appendChild(editor)
 		}

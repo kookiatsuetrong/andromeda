@@ -211,12 +211,6 @@ Screen.createDialog = function(text) {
 
 	})
 
-	/*
-	page.element.addEventListener("click", e => {
-		Screen.activateWindow(detail)
-	})
-	*/
-
 	return p
 }
 
@@ -264,6 +258,8 @@ Screen.createWindow = function(text) {
 	var closeButton = document.createElement("img")
 	closeButton.addEventListener("click", 
 								e => Screen.removeWindow(detail))
+	closeButton.addEventListener("touchend", 
+								e => Screen.removeWindow(detail))
 	closeButton.src = Screen.closeIcon
 	closeButton.style.margin = "-.1rem .5rem 0 1rem"
 	closeButton.style.float  = "right"
@@ -272,6 +268,9 @@ Screen.createWindow = function(text) {
 	var maximizeButton = document.createElement("img")
 	maximizeButton.addEventListener("click", 
 								e => Screen.enlargeWindow(detail))
+	maximizeButton.addEventListener("touchend", 
+								e => Screen.enlargeWindow(detail))
+								
 	maximizeButton.src = Screen.enlargeIcon
 	maximizeButton.style.margin = "-.1rem 0 0 1rem"
 	maximizeButton.style.float  = "right"
@@ -279,6 +278,8 @@ Screen.createWindow = function(text) {
 
 	var restoreButton = document.createElement("img")
 	restoreButton.addEventListener("click", 
+								e => Screen.restoreWindow(detail))
+	restoreButton.addEventListener("touchend", 
 								e => Screen.restoreWindow(detail))
 	restoreButton.src = Screen.restoreIcon
 	restoreButton.style.margin = "-.1rem 0 0 1rem"
@@ -295,6 +296,7 @@ Screen.createWindow = function(text) {
 	bar.appendChild(activateButton)
 	*/
 
+	/*
 	var moveButton = document.createElement("img")
 	moveButton.addEventListener("mousedown", 
 						e => Screen.startMouseMoveWindow(e, detail))
@@ -305,6 +307,7 @@ Screen.createWindow = function(text) {
 	moveButton.style.margin = "-.1rem 0 0 1rem"
 	moveButton.style.float  = "right"
 	bar.appendChild(moveButton)
+	*/
 
 	var container = document.createElement("section")
 	container.classList.add("container")
@@ -323,9 +326,19 @@ Screen.createWindow = function(text) {
 		detail.element.style.opacity = 1
 	}, 200)
 
-	bar.addEventListener("click", e => {
+	bar.addEventListener("mouseup", e => {
 		Screen.activateWindow(detail)
 	})
+	
+	bar.addEventListener("touchend", e => {
+		Screen.activateWindow(detail)
+	})
+	
+	bar.addEventListener("mousedown", 
+						e => Screen.startMouseMoveWindow(e, detail))
+
+	bar.addEventListener("touchstart", 
+						e => Screen.startFingerMoveWindow(e, detail))
 
 	return detail
 }
@@ -487,12 +500,15 @@ Screen.defaultWidth  = 480
 Screen.defaultHeight = 360
 
 Screen.registerApp = function(name, f) {
+	
+	// find the launcher
 	var index = -1
 	for (var i = 0; i < Screen.windows.length; i++) {
 		if (Screen.windows[i].text == "Launcher") {
 			index = i
 		}
 	}
+	
 	if (index >= 0) {
 		var icon = document.createElement("img")
 		icon.src = Screen.appIcon
@@ -505,14 +521,40 @@ Screen.registerApp = function(name, f) {
 		element.style.padding = "0"
 		element.style.width  = "2.5rem"
 		element.style.height = "2.5rem"
+		element.setAttribute("data-app-name", name)
 		element.appendChild(icon)
 		element.addEventListener("click", e => f(e))
 
 		var bar = Screen.windows[index].element.
-							querySelector(".launcher")
+						querySelector(".launcher")
 		bar.appendChild(element)
 	}
 }
+
+Screen.setIcon = function(name, icon) {
+	
+	// find the launcher
+	var index = -1
+	for (var i = 0; i < Screen.windows.length; i++) {
+		if (Screen.windows[i].text == "Launcher") {
+			index = i
+		}
+	}
+	
+	if (index >= 0) {
+		var bar = Screen.windows[index].element.
+						querySelector(".launcher")
+		var element = bar.querySelector("[data-app-name='" + name + "']")
+		
+		var current = element.querySelector("img")
+		element.removeChild(current)
+		
+		var item = document.createElement("img")
+		item.src = icon
+		element.appendChild(item)
+	}
+}
+
 
 Screen.createLauncher = function() {
 	Screen.windowNumber++
@@ -616,6 +658,45 @@ Screen.closeIcon = "data:image/svg+xml," +
 			stroke-linejoin="round">
 			<line x1="18" y1="6" x2="6" y2="18" />
 			<line x1="6" y1="6" x2="18" y2="18" />
+		</svg>`)
+
+Screen.documentIcon = "data:image/svg+xml," + 
+		encodeURIComponent(
+		`<svg xmlns="http://www.w3.org/2000/svg" 
+			width="24" height="24" 
+			viewBox="0 0 24 24" fill="none" stroke="#888" 
+			stroke-width="2" stroke-linecap="round" 
+			stroke-linejoin="round">
+			<path d="M14 2H6a2 2 0 0 0-2 2v16c0 
+				1.1.9 2 2 2h12a2 2 0 0 0 2-2V8l-6-6z" />
+			<path d="M14 3v5h5M16 13H8M16 17H8M10 9H8" />
+		</svg>`)
+
+Screen.photoIcon = "data:image/svg+xml," + 
+		encodeURIComponent(
+		`<svg xmlns="http://www.w3.org/2000/svg" 
+			width="24" height="24" 
+			viewBox="0 0 24 24" fill="none" stroke="#888" 
+			stroke-width="2" stroke-linecap="round" 
+			stroke-linejoin="round">
+			<rect x="3" y="3" width="18" height="18" rx="2" />
+			<circle cx="8.5" cy="8.5" r="1.5" />
+			<path d="M20.4 14.5L16 10 4 20" />
+		</svg>`)
+
+Screen.signalIcon = "data:image/svg+xml," + 
+		encodeURIComponent(
+		`<svg xmlns="http://www.w3.org/2000/svg" 
+			width="24" height="24" 
+			viewBox="0 0 24 24" fill="none" stroke="#888" 
+			stroke-width="2" stroke-linecap="round" 
+			stroke-linejoin="round">
+			<path d="M2 16.1A5 5 0 0 1 5.9 20M2 
+				12.05A9 9 0 0 1 9.95 20M2 8V6a2 
+				2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 
+				2 0 0 1-2 2h-6" />
+			<line x1="2" y1="20" x2="2.01" y2="20" />
+
 		</svg>`)
 
 Screen.appIcon = "data:image/svg+xml," + 
