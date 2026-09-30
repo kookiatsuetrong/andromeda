@@ -11,6 +11,9 @@
 	</body>
 	
 	<style>
+		* {
+			outline: none;
+		}
 		body {
 			margin: 0; 
 			padding: 0; 
@@ -80,12 +83,39 @@
 	
 	<script>
 		window.addEventListener("load", e => {
-			
-			Screen.registerApp("Empty",      e => createEmptyApp()    )
-			Screen.registerApp("Photo View", e => createPhotoViewer() )
-			Screen.registerApp("Currency",   e => createCurrency()    )
-			Screen.registerApp("Sample",     e => createSampleApp()   )		
+			Screen.registerApp("Empty",       e => createEmptyApp()    )
+			Screen.registerApp("Photo View",  e => createPhotoViewer() )
+			Screen.registerApp("Currency",    e => createCurrency()    )
+			Screen.registerApp("Sample",      e => createSampleApp()   )
+			Screen.registerApp("Text Editor", e => createTextEditor() )
 		})
+		
+		function createTextEditor() {
+			var main = Screen.createWindow("Text Editor")
+			
+			// remove current container
+			var container = main.element.querySelector(".container")
+			main.element.removeChild(container)
+			
+			// use textarea as the container
+
+			var editor = document.createElement("textarea")
+			// editor.style.background = "#eef"
+			editor.style.display = "block"
+			editor.style.padding = ".75rem"
+			editor.style.margin  = 0
+			editor.style.border  = "none"
+			editor.style.resize  = "none"
+			editor.style.width   = "calc(100% - 1.50rem)"
+			editor.style.height  = "calc(100% - 3.75rem)"
+			editor.style.fontFamily = "roboto-mono, monospace"
+			
+			for (var i = 0; i < 100; i++) {
+				editor.value += "Sample " + i + "\n"
+			}
+			
+			main.element.appendChild(editor)
+		}
 		
 		function createEmptyApp() {
 			var main = Screen.createWindow("Minimal")
@@ -93,14 +123,14 @@
 		
 		function createPhotoViewer() {
 			var viewer = Screen.createWindow("Photo Viewer")
+			var container = viewer.element.querySelector(".container")
+			container.style.padding = 0
 			
 			var image = document.createElement("img")
 			image.src = "/sample-photo.jpg"
-			image.style.display = "block"
-			image.style.width   = "100%"
+			image.style.display  = "block"
+			image.style.width    = "100%"
 			
-			var container = viewer.element.querySelector(".container")
-			container.style.padding = 0
 			Screen.addElement(viewer, image)
 		}
 		
@@ -166,7 +196,6 @@
 			var result = await Screen.createDialog("Hello World")
 			console.log("result = " + result)
 		}
-		
 		
 	</script>
 </html>

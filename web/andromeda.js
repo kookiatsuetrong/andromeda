@@ -52,14 +52,24 @@ Screen.start = async function() {
 	window.addEventListener("touchend", 
 				e => Screen.finishFingerMoveWindow(e))
 
-	Screen.font = new FontFace("open-sans", 
-						"url(/open-sans/OpenSans-Regular.ttf)",
-						{ weight: 400 }
-					)
-
-	await Screen.font.load()
-	document.fonts.add(Screen.font)
-	document.body.style.fontFamily = "open-sans, sans-serif"
+	var fonts = [ 
+		{name: "open-sans",   url: "/fonts/OpenSans-Regular.ttf"   },
+		{name: "sarabun",     url: "/fonts/Sarabun-Regular.ttf"    },
+		{name: "roboto-mono", url: "/fonts/RobotoMono-Regular.ttf" }
+	]
+	
+	for (var i = 0; i < fonts.length; i++) {
+		var f = new FontFace(fonts[i].name,
+							"url(" + fonts[i].url + ")"
+							)
+		f.load().then( e => {
+			console.log("adding font ")
+			console.log(f)
+			document.fonts.add(f)
+		})
+	}	
+	
+	document.body.style.fontFamily = "open-sans, sarabun, sans-serif"
 
 	var css = `
 
@@ -201,6 +211,12 @@ Screen.createDialog = function(text) {
 
 	})
 
+	/*
+	page.element.addEventListener("click", e => {
+		Screen.activateWindow(detail)
+	})
+	*/
+
 	return p
 }
 
@@ -269,6 +285,7 @@ Screen.createWindow = function(text) {
 	restoreButton.style.float  = "right"
 	bar.appendChild(restoreButton)
 
+	/*
 	var activateButton = document.createElement("img")
 	activateButton.addEventListener("click", 
 								e => Screen.activateWindow(detail))
@@ -276,6 +293,7 @@ Screen.createWindow = function(text) {
 	activateButton.style.margin = "-.1rem 0 0 1rem"
 	activateButton.style.float  = "right"
 	bar.appendChild(activateButton)
+	*/
 
 	var moveButton = document.createElement("img")
 	moveButton.addEventListener("mousedown", 
@@ -304,6 +322,10 @@ Screen.createWindow = function(text) {
 	setTimeout( e => {
 		detail.element.style.opacity = 1
 	}, 200)
+
+	bar.addEventListener("click", e => {
+		Screen.activateWindow(detail)
+	})
 
 	return detail
 }
@@ -437,10 +459,10 @@ Screen.activateWindow = function(pane) {
 }
 
 Screen.enlargeWindow = function(pane) {
-	pane.element.style.top    = "1rem"
-	pane.element.style.left   = "1rem"
-	pane.element.style.width  = "calc(100dvw - 3rem)"
-	pane.element.style.height = "calc(100dvh - 3rem)"
+	pane.element.style.top    = ".75rem"
+	pane.element.style.left   = ".75rem"
+	pane.element.style.width  = "calc(100dvw - 2.5rem)"
+	pane.element.style.height = "calc(100dvh - 2.5rem)"
 }
 
 Screen.restoreWindow = function(pane) {
