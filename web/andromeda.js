@@ -330,7 +330,7 @@ Screen.createWindow = function(text) {
 		Screen.activateWindow(detail)
 	})
 	
-	bar.addEventListener("touchend", e => {
+	bar.addEventListener("touchstart", e => {
 		Screen.activateWindow(detail)
 	})
 	
