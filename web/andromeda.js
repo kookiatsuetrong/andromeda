@@ -3,9 +3,9 @@
 // finger touch --> pointerdown, mousedown, touchstart
 // pen tap      --> pointerdown, mousedown, touchstart
 
-// mousedown     mousemove     mouseup
-// touchstart    touchmove     touchend
-// pointerdown   pointermove   pointerup
+// mousedown     mousemove     mouseup         dblclick
+// touchstart    touchmove     touchend        (no)
+// pointerdown   pointermove   pointerup       (no)
 
 var Screen = { }
 
@@ -69,7 +69,8 @@ Screen.start = async function() {
 		})
 	}	
 	
-	document.body.style.fontFamily = "open-sans, sarabun, sans-serif"
+	document.body.style.fontFamily = "open-sans, sarabun, sans-serif, " +
+									"roboto-mono"
 
 	var css = `
 
@@ -142,12 +143,21 @@ Screen.createDialog = function(text) {
 	dialog.style.color     = "#333"
 	dialog.style.display   = "block"
 	dialog.style.overflow  = "auto"
-
+	
 	var width  = 400
 	var height = 240
+	
+	if (width  > size.width  - 32) {
+		width  = size.width  - 64
+	}
+	
+	if (height > size.height - 32) {
+		height = size.height - 64
+	}
+	
 	var x = (size.width  - width  - 16) / 2
 	var y = (size.height - height - 16) / 2
-	y = 120
+	y = 80
 
 	dialog.style.top    = y + "px"
 	dialog.style.left   = x + "px"
@@ -236,6 +246,15 @@ Screen.createWindow = function(text) {
 	detail.element.style.overflow  = "auto"
 
 	var size = Screen.getSize()
+	
+	if (Screen.defaultWidth  > size.width  - 32) {
+		Screen.defaultWidth  = size.width  - 64
+	}
+	
+	if (Screen.defaultHeight > size.height - 32) {
+		Screen.defaultHeight = size.height - 64
+	}
+	
 	var y = (size.height - Screen.defaultHeight - 16) / 2
 	var x = (size.width  - Screen.defaultWidth  - 16) / 2
 
@@ -554,7 +573,6 @@ Screen.setIcon = function(name, icon) {
 		element.appendChild(item)
 	}
 }
-
 
 Screen.createLauncher = function() {
 	Screen.windowNumber++
