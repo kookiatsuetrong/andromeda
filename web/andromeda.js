@@ -249,7 +249,7 @@ Screen.createWindow = function(text) {
 	var bar = document.createElement("section")
 	bar.classList.add("bar")
 	bar.style.background = "rgba(255, 255, 255, .80)"
-	bar.style.padding = ".5rem 0 .5rem .6rem"
+	bar.style.padding = ".25rem 0 .5rem .6rem"
 	bar.style.margin = "0"
 	bar.style.fontSize = "1.1rem"
 	bar.innerText = text
