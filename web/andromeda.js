@@ -312,7 +312,7 @@ Screen.createWindow = function(text) {
 	var container = document.createElement("section")
 	container.classList.add("container")
 	container.style.background = "rgba(255, 255, 255, .9)"
-	container.style.minHeight = "calc(100% - 3.8rem)"
+	container.style.minHeight = "calc(100% - 3.55rem)"
 	container.style.padding = ".75rem"
 	detail.element.appendChild(container)
 
