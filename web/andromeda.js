@@ -99,6 +99,38 @@ Screen.start = async function() {
 				[0].appendChild(style)
 
 	Screen.createLauncher()
+	
+	window.addEventListener("drop", async e => {
+		e.preventDefault()
+		console.log(e)
+		
+		var files = [...e.dataTransfer.items]
+					.map( item => item.getAsFile() )
+					// .filter( item => item )
+		console.log(files)
+		
+		files.forEach( f => {
+			
+			if (f.type == "image/jpeg") {
+				console.log(f.type)
+				var data = URL.createObjectURL(f)
+				console.log(data)
+			}
+			
+			if (f.type == "text/plain") {
+				console.log(f)
+				var reader = new FileReader()
+				reader.onload = function() {
+					console.log(reader.result)
+				}
+				reader.readAsText(f)
+			}
+			
+		})
+
+	})
+	
+	window.addEventListener("dragover", e => e.preventDefault() )
 }
 
 Screen.getFrontWindow = function() {
