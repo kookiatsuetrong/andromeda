@@ -83,18 +83,23 @@
 	
 	<script>
 		window.addEventListener("load", e => {
-			Screen.registerApp("Empty",       e => createEmptyApp()    )
-			Screen.registerApp("Photo View",  e => createPhotoViewer() )
-			Screen.registerApp("Currency",    e => createCurrency()    )
-			Screen.registerApp("Sample",      e => createSampleApp()   )
-			Screen.registerApp("Text Editor", e => createTextEditor()  )
+			Screen.registerApp("Empty",        createEmptyApp    )
+			Screen.registerApp("Photo Viewer", createPhotoViewer )
+			Screen.registerApp("Currency",     createCurrency    )
+			Screen.registerApp("Sample",       createSampleApp   )
+			Screen.registerApp("Text Editor",  e => createTextEditor(e)  )
 
-			Screen.setIcon("Text Editor", Screen.documentIcon)
-			Screen.setIcon("Photo View",  Screen.photoIcon)
-			Screen.setIcon("Currency",    Screen.signalIcon)
+			Screen.associate("Text Editor",  "text/plain")
+			Screen.associate("Photo Viewer", "image/jpg" )
+			Screen.associate("Photo Viewer", "image/jpeg")
+			Screen.associate("Photo Viewer", "image/png" )
+			
+			Screen.setIcon("Text Editor",  Screen.documentIcon)
+			Screen.setIcon("Photo Viewer", Screen.photoIcon)
+			Screen.setIcon("Currency",     Screen.signalIcon)
 		})
 		
-		function createTextEditor() {
+		function createTextEditor(file) {
 			var main = Screen.createWindow("Text Editor")
 			
 			// remove current container
@@ -128,6 +133,13 @@
 				}
 			})
 			
+			var reader = new FileReader()
+			reader.onload = function() {
+				console.log(reader.result)
+				editor.value = reader.result
+			}
+			reader.readAsText(file)
+			
 			main.element.appendChild(editor)
 		}
 		
@@ -135,6 +147,37 @@
 			var main = Screen.createWindow("Minimal")
 		}
 		
+		function createPhotoViewer(file) {
+			var reader = new FileReader()
+			reader.onload = function() {
+
+				var viewer = Screen.createWindow("Photo Viewer")
+				var container = viewer.element.querySelector(".container")
+				container.style.padding = 0
+
+				var image = document.createElement("img")
+				image.onload = function() {
+					console.log(image.height)
+
+					var viewerHeight = viewer.element.clientHeight
+					console.log("viewerHeight " + viewerHeight)
+					if (viewerHeight > image.height) {
+						var value = "calc(" + image.height + "px " +
+										"+ 2rem)"
+						console.log(value)
+						viewer.element.style.height = value
+					}
+				}
+				image.src = reader.result
+				image.style.display = "block"
+				image.style.width   = "100%"
+
+				Screen.addElement(viewer, image)
+			}
+			reader.readAsDataURL(file)
+		}
+		
+		/*
 		function createPhotoViewer() {
 			var viewer = Screen.createWindow("Photo Viewer")
 			var container = viewer.element.querySelector(".container")
@@ -142,11 +185,12 @@
 			
 			var image = document.createElement("img")
 			image.src = "/sample-photo.jpg"
-			image.style.display  = "block"
-			image.style.width    = "100%"
+			image.style.display = "block"
+			image.style.width   = "100%"
 			
 			Screen.addElement(viewer, image)
 		}
+		*/
 		
 		function createCurrency() {
 			var main = Screen.createWindow("Currency")

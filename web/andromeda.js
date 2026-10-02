@@ -9,7 +9,8 @@
 
 var Screen = { }
 
-// Screen.apps = [ ]
+Screen.apps = [ ]
+Screen.workers = { }
 // Screen.processNumber = 0
 Screen.windows = [ ]
 Screen.windowNumber = 0
@@ -81,6 +82,7 @@ Screen.start = async function() {
 
 		.window .bar img:hover {
 			background: #ddd;
+			cursor: pointer;
 		}
 		.launcher img {
 			transition: transform .1s linear;
@@ -110,27 +112,125 @@ Screen.start = async function() {
 		console.log(files)
 		
 		files.forEach( f => {
-			
-			if (f.type == "image/jpeg") {
-				console.log(f.type)
-				var data = URL.createObjectURL(f)
-				console.log(data)
-			}
-			
-			if (f.type == "text/plain") {
-				console.log(f)
-				var reader = new FileReader()
-				reader.onload = function() {
-					console.log(reader.result)
-				}
-				reader.readAsText(f)
-			}
-			
+			Screen.startAppByDataType(f.type, f)
 		})
 
 	})
 	
 	window.addEventListener("dragover", e => e.preventDefault() )
+}
+
+Screen.associate = function(name, mime) {
+	Screen.workers[mime] = name
+}
+
+Screen.defaultWidth  = 480
+Screen.defaultHeight = 360
+
+Screen.registerApp = function(name, f) {
+
+	// find the launcher
+	var index = -1
+	for (var i = 0; i < Screen.windows.length; i++) {
+		if (Screen.windows[i].text == "Launcher") {
+			index = i
+		}
+	}
+	
+	if (index >= 0) {
+		var icon = document.createElement("img")
+		icon.src = Screen.appIcon
+
+		var element = document.createElement("button")
+		element.style.border = "none"
+		element.style.background = "white"
+		element.style.borderRadius = ".5rem"
+		element.style.margin = ".5rem .25rem"
+		element.style.padding = "0"
+		element.style.width  = "2.5rem"
+		element.style.height = "2.5rem"
+		element.setAttribute("data-app-name", name)
+		element.appendChild(icon)
+		element.addEventListener("click", e => f(e))
+
+		var bar = Screen.windows[index].element.
+						querySelector(".launcher")
+		bar.appendChild(element)
+
+		// searching the app by name (using name as identifier)
+		var found = -1
+		for (var i = 0; i < Screen.apps.length; i++) {
+			if (name == Screen.apps[i].name) {
+				found = i
+			}
+		}
+		
+		if (found == -1) {
+			// create a new app
+			var detail = { }
+			detail.name = name
+			detail.start = f
+			detail.icon = Screen.appIcon
+			Screen.apps.push(detail)
+		}
+		
+		if (found >= 0) {
+			// replace the existing app
+			var detail = Screen.apps[found]
+			detail.name = name
+			detail.start = f
+			Screen.apps[found] = detail
+		}
+	}
+}
+
+Screen.startAppByDataType = function(mime, data) {
+	var name = Screen.workers[mime]
+	if (name == null) {
+		console.log("Unknown Data Type")
+		// TODO: ask user to find new app
+		return
+	}
+	
+	var found = -1
+	for (var i = 0; i < Screen.apps.length; i++) {
+		if (Screen.apps[i].name == name) {
+			found = i
+		}
+	}
+	
+	if (found < 0) {
+		console.log("Unknown App")
+		// TODO: display an error
+		return
+	}
+	
+	// from this point, found is valid
+	Screen.apps[found].start(data)
+}
+
+Screen.setIcon = function(name, icon) {
+	
+	// find the launcher
+	var index = -1
+	for (var i = 0; i < Screen.windows.length; i++) {
+		if (Screen.windows[i].text == "Launcher") {
+			index = i
+		}
+	}
+	
+	if (index >= 0) {
+		var bar = Screen.windows[index].element.
+						querySelector(".launcher")
+		var element = bar.querySelector("[data-app-name='" + name + "']")
+		
+		var current = element.querySelector("img")
+		element.removeChild(current)
+		
+		var item = document.createElement("img")
+		item.src = icon
+		element.appendChild(item)
+	}
 }
 
 Screen.getFrontWindow = function() {
@@ -396,8 +496,7 @@ Screen.createWindow = function(text) {
 
 Screen.startMouseMoveWindow = function(event, pane) {
 	event.preventDefault()
-	console.log(event)
-	
+	document.body.style.cursor = "move"
 	window.moving  = pane
 	window.movingX = event.screenX
 	window.movingY = event.screenY
@@ -422,6 +521,7 @@ Screen.finishMouseMoveWindow = function(event) {
 	if (window.moving == null) { }
 	if (window.moving != null) {
 		event.preventDefault()
+		document.body.style.cursor = "default"
 		window.moving = null
 	}
 }
@@ -546,65 +646,6 @@ Screen.centerWindow = function(pane) {
 	var bound = pane.element.getBoundingClientRect()			
 	var x = (size.width - bound.width)  / 2
 	pane.element.style.left   = x + "px"
-}
-
-Screen.defaultWidth  = 480
-Screen.defaultHeight = 360
-
-Screen.registerApp = function(name, f) {
-	
-	// find the launcher
-	var index = -1
-	for (var i = 0; i < Screen.windows.length; i++) {
-		if (Screen.windows[i].text == "Launcher") {
-			index = i
-		}
-	}
-	
-	if (index >= 0) {
-		var icon = document.createElement("img")
-		icon.src = Screen.appIcon
-
-		var element = document.createElement("button")
-		element.style.border = "none"
-		element.style.background = "white"
-		element.style.borderRadius = ".5rem"
-		element.style.margin = ".5rem .25rem"
-		element.style.padding = "0"
-		element.style.width  = "2.5rem"
-		element.style.height = "2.5rem"
-		element.setAttribute("data-app-name", name)
-		element.appendChild(icon)
-		element.addEventListener("click", e => f(e))
-
-		var bar = Screen.windows[index].element.
-						querySelector(".launcher")
-		bar.appendChild(element)
-	}
-}
-
-Screen.setIcon = function(name, icon) {
-	
-	// find the launcher
-	var index = -1
-	for (var i = 0; i < Screen.windows.length; i++) {
-		if (Screen.windows[i].text == "Launcher") {
-			index = i
-		}
-	}
-	
-	if (index >= 0) {
-		var bar = Screen.windows[index].element.
-						querySelector(".launcher")
-		var element = bar.querySelector("[data-app-name='" + name + "']")
-		
-		var current = element.querySelector("img")
-		element.removeChild(current)
-		
-		var item = document.createElement("img")
-		item.src = icon
-		element.appendChild(item)
-	}
 }
 
 Screen.createLauncher = function() {
