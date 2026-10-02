@@ -133,12 +133,13 @@
 				}
 			})
 			
-			var reader = new FileReader()
-			reader.onload = function() {
-				console.log(reader.result)
-				editor.value = reader.result
+			if (file instanceof File) {
+				var reader = new FileReader()
+				reader.onload = function() {
+					editor.value = reader.result
+				}
+				reader.readAsText(file)
 			}
-			reader.readAsText(file)
 			
 			main.element.appendChild(editor)
 		}
@@ -148,33 +149,39 @@
 		}
 		
 		function createPhotoViewer(file) {
-			var reader = new FileReader()
-			reader.onload = function() {
 
-				var viewer = Screen.createWindow("Photo Viewer")
-				var container = viewer.element.querySelector(".container")
-				container.style.padding = 0
+			var viewer = Screen.createWindow("Photo Viewer")
+			var container = viewer.element.querySelector(".container")
+			container.style.padding = 0
+			container.style.height = "calc(100% - 2rem)"
 
-				var image = document.createElement("img")
-				image.onload = function() {
-					console.log(image.height)
+			var image = document.createElement("img")
+			image.style.display = "block"
+			image.style.width   = "100%"
 
-					var viewerHeight = viewer.element.clientHeight
-					console.log("viewerHeight " + viewerHeight)
-					if (viewerHeight > image.height) {
-						var value = "calc(" + image.height + "px " +
-										"+ 2rem)"
-						console.log(value)
-						viewer.element.style.height = value
+			Screen.addElement(viewer, image)
+
+			if (file instanceof File) {
+				var reader = new FileReader()
+				reader.onload = function() {
+
+					image.onload = function() {
+						console.log(image.height)
+
+						var viewerHeight = viewer.element.clientHeight
+						console.log("viewerHeight " + viewerHeight)
+						if (viewerHeight > image.height) {
+							var value = "calc(" + image.height + "px " +
+											"+ 2rem)"
+							console.log(value)
+							viewer.element.style.height = value
+						}
 					}
+					image.src = reader.result
+					Screen.addElement(viewer, image)
 				}
-				image.src = reader.result
-				image.style.display = "block"
-				image.style.width   = "100%"
-
-				Screen.addElement(viewer, image)
+				reader.readAsDataURL(file)
 			}
-			reader.readAsDataURL(file)
 		}
 		
 		/*
