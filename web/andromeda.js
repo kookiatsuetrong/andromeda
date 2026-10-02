@@ -377,7 +377,7 @@ Screen.createWindow = function(text) {
 		detail.element.style.opacity = 1
 	}, 200)
 
-	bar.addEventListener("mouseup", e => {
+	bar.addEventListener("mousedown", e => {
 		Screen.activateWindow(detail)
 	})
 	
@@ -395,38 +395,41 @@ Screen.createWindow = function(text) {
 }
 
 Screen.startMouseMoveWindow = function(event, pane) {
+	event.preventDefault()
+	console.log(event)
+	
 	window.moving  = pane
-	window.movingX = event.clientX
-	window.movingY = event.clientY
+	window.movingX = event.screenX
+	window.movingY = event.screenY
 
 	var bound = pane.element.getBoundingClientRect()
 	window.startX  = bound.x
 	window.startY  = bound.y
-
-	event.preventDefault()
 }
 
 Screen.continueMouseMoveWindow = function(event) {
 	if (window.moving == null) { }
 	if (window.moving != null) {
-		var x = (event.clientX - window.movingX + window.startX)
-		var y = (event.clientY - window.movingY + window.startY)
-		window.moving.element.style.top  = y + "px"
-		window.moving.element.style.left = x + "px"
 		event.preventDefault()
+		var x = (event.screenX - window.movingX + window.startX)
+		var y = (event.screenY - window.movingY + window.startY)
+		window.moving.element.style.left = x + "px"
+		window.moving.element.style.top  = y + "px"
 	}
 }
 
 Screen.finishMouseMoveWindow = function(event) {
 	if (window.moving == null) { }
 	if (window.moving != null) {
-		window.moving = null
 		event.preventDefault()
+		window.moving = null
 	}
 }
 
 Screen.startFingerMoveWindow = function(event, pane) {
 	if (event.changedTouches.length == 0) return
+	
+	event.preventDefault()
 
 	window.moving  = pane
 	window.touchIdentifier = event.changedTouches[0].identifier
@@ -436,8 +439,6 @@ Screen.startFingerMoveWindow = function(event, pane) {
 	var bound = pane.element.getBoundingClientRect()
 	window.startX  = bound.x
 	window.startY  = bound.y
-
-	event.preventDefault()
 }
 
 Screen.continueFingerMoveWindow = function(event) {
