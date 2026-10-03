@@ -11,7 +11,6 @@ var Screen = { }
 
 Screen.apps = [ ]
 Screen.workers = { }
-// Screen.processNumber = 0
 Screen.windows = [ ]
 Screen.windowNumber = 0
 
@@ -360,7 +359,6 @@ Screen.createWindow = function(text) {
 	Screen.windowNumber++
 	var detail = { }
 	detail.text = text
-	detail.maximize = true
 	detail.identifier = Screen.windowNumber
 	detail.front  = 1 + Screen.getFrontWindow()
 
@@ -387,15 +385,20 @@ Screen.createWindow = function(text) {
 		Screen.defaultHeight = size.height - 64
 	}
 	
-	var y = (size.height - Screen.defaultHeight - 16) / 2
-	var x = (size.width  - Screen.defaultWidth  - 16) / 2
+	detail.x = (size.width  - Screen.defaultWidth  - 16) / 2
+	detail.y = (size.height - Screen.defaultHeight - 16) / 2
+	detail.width  = Screen.defaultWidth
+	detail.height = Screen.defaultHeight
 
-	detail.element.style.top    = y + "px"
-	detail.element.style.left   = x + "px"
-	detail.element.style.width  = Screen.defaultWidth  + "px"
-	detail.element.style.height = Screen.defaultHeight + "px"
+	detail.element.style.top    = detail.y + "px"
+	detail.element.style.left   = detail.x + "px"
+	detail.element.style.width  = detail.width  + "px"
+	detail.element.style.height = detail.height + "px"
 
 	detail.element.style.zIndex = detail.front
+	
+	detail.element.addEventListener("mousedown", 
+							e => Screen.startResizing(e, detail))
 
 	var bar = document.createElement("section")
 	bar.classList.add("bar")
@@ -436,30 +439,7 @@ Screen.createWindow = function(text) {
 	restoreButton.style.margin = "-.1rem 0 0 1rem"
 	restoreButton.style.float  = "right"
 	bar.appendChild(restoreButton)
-
-	/*
-	var activateButton = document.createElement("img")
-	activateButton.addEventListener("click", 
-								e => Screen.activateWindow(detail))
-	activateButton.src = Screen.checkIcon
-	activateButton.style.margin = "-.1rem 0 0 1rem"
-	activateButton.style.float  = "right"
-	bar.appendChild(activateButton)
-	*/
-
-	/*
-	var moveButton = document.createElement("img")
-	moveButton.addEventListener("mousedown", 
-						e => Screen.startMouseMoveWindow(e, detail))
-
-	moveButton.addEventListener("touchstart", 
-						e => Screen.startFingerMoveWindow(e, detail))
-	moveButton.src = Screen.moveIcon
-	moveButton.style.margin = "-.1rem 0 0 1rem"
-	moveButton.style.float  = "right"
-	bar.appendChild(moveButton)
-	*/
-
+	
 	var container = document.createElement("section")
 	container.classList.add("container")
 	container.style.background = "rgba(255, 255, 255, .9)"
@@ -490,13 +470,30 @@ Screen.createWindow = function(text) {
 
 	bar.addEventListener("touchstart", 
 						e => Screen.startFingerMoveWindow(e, detail))
-
+	
 	return detail
+}
+
+Screen.startResizing = function(event, pane) {
+	console.log(event)
+
+	var distanceX = Math.abs(event.offsetX - pane.width)
+	var distanceY = Math.abs(event.offsetY - pane.height)
+	
+	if (distanceX <= 10 && distanceY <= 10) {
+		event.preventDefault()
+		console.log("resizing")
+		window.resizing = pane
+		// window.startX = event.screenX
+		// window.startY = event.screenY
+	}
 }
 
 Screen.startMouseMoveWindow = function(event, pane) {
 	event.preventDefault()
+	event.stopPropagation()
 	document.body.style.cursor = "move"
+	
 	window.moving  = pane
 	window.movingX = event.screenX
 	window.movingY = event.screenY
@@ -510,10 +507,28 @@ Screen.continueMouseMoveWindow = function(event) {
 	if (window.moving == null) { }
 	if (window.moving != null) {
 		event.preventDefault()
-		var x = (event.screenX - window.movingX + window.startX)
-		var y = (event.screenY - window.movingY + window.startY)
-		window.moving.element.style.left = x + "px"
-		window.moving.element.style.top  = y + "px"
+		window.moving.x = (event.screenX - window.movingX + window.startX)
+		window.moving.y = (event.screenY - window.movingY + window.startY)
+		window.moving.element.style.left = window.moving.x + "px"
+		window.moving.element.style.top  = window.moving.y + "px"
+	}
+	if (window.resizing == null) { }
+	if (window.resizing != null) {
+		event.preventDefault()
+		console.log(event)
+		window.resizing.width  += event.movementX
+		window.resizing.height += event.movementY
+		
+		if (window.resizing.width  <= 320) {
+			window.resizing.width   = 320
+		}
+		
+		if (window.resizing.height <= 240) {
+			window.resizing.height  = 240
+		}
+		
+		window.resizing.element.style.width  = window.resizing.width  + "px"
+		window.resizing.element.style.height = window.resizing.height + "px"
 	}
 }
 
@@ -523,6 +538,11 @@ Screen.finishMouseMoveWindow = function(event) {
 		event.preventDefault()
 		document.body.style.cursor = "default"
 		window.moving = null
+	}
+	if (window.resizing == null) { }
+	if (window.resizing != null) {
+		event.preventDefault()
+		window.resizing = null
 	}
 }
 
@@ -800,6 +820,16 @@ Screen.appIcon = "data:image/svg+xml," +
 			stroke-linejoin="round">
 			<rect x="3" y="3" width="18" height="18" rx="2" />
 			<path d="M3 9h18" />
+		</svg>`)
+
+Screen.resizeIcon = "data:image/svg+xml," + 
+		encodeURIComponent(
+		`<svg xmlns="http://www.w3.org/2000/svg" 
+			width="24" height="24" 
+			viewBox="0 0 24 24" fill="none" stroke="#888" 
+			stroke-width="2" stroke-linecap="round" 
+			stroke-linejoin="round">
+			<path d="M7 7l9.2 9.2M17 7v10H7" />
 		</svg>`)
 
 Screen.addElement = function(pane, element) {
