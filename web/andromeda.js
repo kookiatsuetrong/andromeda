@@ -398,7 +398,9 @@ Screen.createWindow = function(text) {
 	detail.element.style.zIndex = detail.front
 	
 	detail.element.addEventListener("mousedown", 
-							e => Screen.startResizing(e, detail))
+							e => Screen.startMouseResizing(e, detail))
+	detail.element.addEventListener("touchstart", 
+							e => Screen.startFingerResizing(e, detail))
 
 	var bar = document.createElement("section")
 	bar.classList.add("bar")
@@ -474,18 +476,18 @@ Screen.createWindow = function(text) {
 	return detail
 }
 
-Screen.startResizing = function(event, pane) {
-	console.log(event)
-
-	var distanceX = Math.abs(event.offsetX - pane.width)
-	var distanceY = Math.abs(event.offsetY - pane.height)
+Screen.startMouseResizing = function(event, pane) {
+	var bound = pane.element.getBoundingClientRect()
 	
-	if (distanceX <= 10 && distanceY <= 10) {
+	var distanceX = Math.abs(event.offsetX - bound.width)
+	var distanceY = Math.abs(event.offsetY - bound.height)
+
+	if (distanceX <= 32 && distanceY <= 32) {
 		event.preventDefault()
-		console.log("resizing")
+		console.log("Window resizing by mouse")
 		window.resizing = pane
-		// window.startX = event.screenX
-		// window.startY = event.screenY
+		window.resizingWidth  = bound.width
+		window.resizingHeight = bound.height
 	}
 }
 
@@ -516,19 +518,15 @@ Screen.continueMouseMoveWindow = function(event) {
 	if (window.resizing != null) {
 		event.preventDefault()
 		console.log(event)
-		window.resizing.width  += event.movementX
-		window.resizing.height += event.movementY
+
+		window.resizingWidth  += event.movementX
+		window.resizingHeight += event.movementY
 		
-		if (window.resizing.width  <= 320) {
-			window.resizing.width   = 320
-		}
+		if (window.resizingWidth  <= 320) window.resizingWidth  = 320
+		if (window.resizingHeight <= 240) window.resizingHeight = 240
 		
-		if (window.resizing.height <= 240) {
-			window.resizing.height  = 240
-		}
-		
-		window.resizing.element.style.width  = window.resizing.width  + "px"
-		window.resizing.element.style.height = window.resizing.height + "px"
+		window.resizing.element.style.width  = window.resizingWidth  + "px"
+		window.resizing.element.style.height = window.resizingHeight + "px"
 	}
 }
 
@@ -543,6 +541,33 @@ Screen.finishMouseMoveWindow = function(event) {
 	if (window.resizing != null) {
 		event.preventDefault()
 		window.resizing = null
+	}
+}
+
+Screen.startFingerResizing = function(event, pane) {
+	if (event.changedTouches.length == 0) return
+
+	var bound = pane.element.getBoundingClientRect()
+	var distanceX = Math.abs(event.changedTouches[0].clientX - 
+											bound.width  - bound.x)
+	var distanceY = Math.abs(event.changedTouches[0].clientY - 
+											bound.height - bound.y)
+	/*
+	console.log(event.changedTouches[0])
+	console.log(bound)
+	console.log("distanceX ", distanceX)
+	console.log("distanceY ", distanceY)
+	*/
+
+	if (distanceX <= 30 && distanceY <= 30) {
+		event.preventDefault()
+		console.log("Window resizing by finger")
+		window.resizing = pane
+		window.resizingWidth  = bound.width
+		window.resizingHeight = bound.height
+		window.touchIdentifier = event.changedTouches[0].identifier
+		window.movingX = event.changedTouches[0].screenX
+		window.movingY = event.changedTouches[0].screenY
 	}
 }
 
@@ -563,8 +588,8 @@ Screen.startFingerMoveWindow = function(event, pane) {
 
 Screen.continueFingerMoveWindow = function(event) {
 	if (event.touches.length == 0) return
+	
 	if (window.moving == null) { }
-
 	if (window.moving != null) {
 		var index = -1
 		for (var i = 0; i < event.touches.length; i++) {
@@ -582,7 +607,34 @@ Screen.continueFingerMoveWindow = function(event) {
 			window.moving.element.style.left = x + "px"
 			// event.preventDefault()
 		}
+	}
 
+	if (window.resizing == null) { }
+	if (window.resizing != null) {
+
+		var index = -1
+		for (var i = 0; i < event.touches.length; i++) {
+			var current = event.touches[i].identifier
+			if (current == window.touchIdentifier) {
+				index = i
+			}
+		}
+		if (index >= 0) {
+			window.resizingWidth  += event.touches[index].screenX -
+										window.movingX
+			window.resizingHeight += event.touches[index].screenY-
+										window.movingY
+
+			if (window.resizingWidth  <= 320) window.resizingWidth  = 320
+			if (window.resizingHeight <= 240) window.resizingHeight = 240
+			
+			window.movingX = event.touches[index].screenX
+			window.movingY = event.touches[index].screenY
+
+			window.resizing.element.style.width  = window.resizingWidth  + "px"
+			window.resizing.element.style.height = window.resizingHeight + "px"
+			// event.preventDefault()
+		}
 	}
 }
 
@@ -598,6 +650,21 @@ Screen.finishFingerMoveWindow = function(event) {
 		}
 		if (index >= 0) {
 			window.moving = null
+			event.preventDefault()
+		}
+	}
+	
+	if (window.resizing == null) { }
+	if (window.resizing != null) {
+		var index = -1
+		for (var i = 0; i < event.changedTouches.length; i++) {
+			var current = event.changedTouches[i].identifier
+			if (current == window.touchIdentifier) {
+				index = i
+			}
+		}
+		if (index >= 0) {
+			window.resizing = null
 			event.preventDefault()
 		}
 	}
