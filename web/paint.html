@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Sample Notepad</title>
+	</head>
+	<body>
+
+		<canvas id="canvas" width="600" height="400">
+			Your browser does not support the canvas element.
+		</canvas>
+	</body>
+
+	<style>
+		html {
+			margin: 0;
+			padding: 0;
+		}
+	body {
+		margin: 0;
+		padding: 0;
+	}
+	#canvas {
+		border-radius: 1rem;
+		box-shadow: 0 0 .1rem black;
+		touch-action: none;
+		display: block;
+		padding: 0;
+		margin: 0;
+		margin: 5rem auto;
+	}
+	</style>
+
+	<script>
+	var canvas = document.getElementById("canvas")
+	var ctx = canvas.getContext("2d")
+
+	canvas.addEventListener("pointerdown", handleStart)
+	canvas.addEventListener("pointermove", handleMove)
+	canvas.addEventListener("pointerup",   handleFinish)
+
+	var points = [ ]
+
+	function handleStart(event) {
+		console.log(event)
+		console.log(event.pointerType)  // pen, mouse, touch
+		console.log(event.pressure)
+
+		// try event.tiltX, event.tiltY
+		// try event.pressure
+
+		if (event.pointerType == "pen") {
+			var bounding = canvas.getBoundingClientRect()
+			var p = { }
+			p.x = event.clientX - bounding.left
+			p.y = event.clientY - bounding.top
+			points.push(p)
+			
+			ctx.beginPath()
+			ctx.arc(p.x, p.y, 10 * event.pressure, 0, 2 * Math.PI, false)
+			ctx.fillStyle = "salmon"
+			ctx.fill()
+		}
+	}
+
+	function handleMove(event) {
+		if (event.pointerType == "pen" && points.length > 0) {
+			var bounding = canvas.getBoundingClientRect()
+			var p = { }
+			p.x = event.clientX - bounding.left
+			p.y = event.clientY - bounding.top
+			var last = points[points.length - 1]
+
+			ctx.beginPath()
+			ctx.moveTo(last.x, last.y)
+			ctx.lineTo(p.x, p.y)
+			ctx.lineWidth = 5 * event.pressure
+			ctx.strokeStyle = "rgba(99%, 10%, 10%, 0.5)"
+			ctx.stroke()
+
+			points.push(p)
+		}
+	}
+	
+	function handleFinish(event) {
+		if (event.pointerType == "pen") {
+			points = [ ]
+		}
+	}
+
+	</script>
+
+</html>
