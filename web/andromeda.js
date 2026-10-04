@@ -809,6 +809,12 @@ Screen.createLauncher = function() {
 	setTimeout( e => {
 		panel.element.style.opacity = 1
 	}, 200)
+	
+	window.addEventListener("resize", e => {
+		var size = Screen.getSize()
+		panel.element.style.top    = (size.height - height - 16) + "px"
+		panel.element.style.width  = size.width  + "px"
+	})
 
 	return panel
 }
