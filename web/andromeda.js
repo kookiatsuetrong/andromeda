@@ -74,6 +74,38 @@ Screen.start = async function() {
 
 	var css = `
 
+		.background {
+			width: 100dvw;
+			height: 100dvh;
+			background-image: url("/background-gray.png");
+			background-size: cover;
+		}
+		a {
+			text-decoration: none;
+			color: #aaa;
+		}
+		a:visited {
+			color: #aaa;
+		}
+		a:hover {
+			color: #333;
+			cursor: pointer;
+		}
+		
+		button {
+			background: #ccc;
+			color: #333;
+			border: .1rem solid #aaa;
+			padding: .5rem 1rem;
+			border-radius: .35rem;
+		}
+		button:hover {
+			background: #eee;
+		}
+		button:active {
+			border: .1rem solid #ddd;
+		}
+		
 		.window .bar img {
 			border-radius: 1rem;
 			padding: .1rem;
@@ -232,11 +264,11 @@ Screen.setIcon = function(name, icon) {
 	}
 }
 
-Screen.getFrontWindow = function() {
+Screen.getActiveWindow = function() {
 	var m = 0
 	for (var i = 0; i < Screen.windows.length; i++) {
-		if (m < Screen.windows[i].front) {
-			m = Screen.windows[i].front
+		if (m < Screen.windows[i].layer) {
+			m = Screen.windows[i].layer
 		}
 	}
 	return m
@@ -248,7 +280,7 @@ Screen.createDialog = function(text) {
 	page.text = text
 	page.maximize = true
 	page.identifier = Screen.windowNumber
-	page.front  = 1 + Screen.getFrontWindow()
+	page.layer  = 1 + Screen.getActiveWindow()
 
 	var size = Screen.getSize()
 
@@ -260,7 +292,7 @@ Screen.createDialog = function(text) {
 	page.element.style.height = size.height + "px"
 	page.element.style.position = "absolute"
 	page.element.style.background = "rgba(0,0,0, .66)"
-	page.element.style.zIndex = page.front
+	page.element.style.zIndex = page.layer
 
 	var dialog = document.createElement("section")
 	dialog.classList.add("dialog")
@@ -360,7 +392,7 @@ Screen.createWindow = function(text) {
 	var detail = { }
 	detail.text = text
 	detail.identifier = Screen.windowNumber
-	detail.front  = 1 + Screen.getFrontWindow()
+	detail.layer  = 1 + Screen.getActiveWindow()
 
 	detail.element = document.createElement("section")
 	detail.element.classList.add("window")
@@ -395,7 +427,7 @@ Screen.createWindow = function(text) {
 	detail.element.style.width  = detail.width  + "px"
 	detail.element.style.height = detail.height + "px"
 
-	detail.element.style.zIndex = detail.front
+	detail.element.style.zIndex = detail.layer
 	
 	var bar = document.createElement("section")
 	bar.classList.add("bar")
@@ -701,8 +733,8 @@ Screen.activateWindow = function(pane) {
 	}
 
 	if (found >= 0) {
-		pane.front = 1 + Screen.getFrontWindow()
-		pane.element.style.zIndex = pane.front
+		pane.layer = 1 + Screen.getActiveWindow()
+		pane.element.style.zIndex = pane.layer
 	}
 }
 
@@ -737,7 +769,7 @@ Screen.createLauncher = function() {
 	panel.text = "Launcher"
 	panel.maximize = true
 	panel.identifier = Screen.windowNumber
-	panel.front  = 1 + Screen.getFrontWindow()
+	panel.layer  = 1 + Screen.getActiveWindow()
 
 	panel.element = document.createElement("section")
 	panel.element.classList.add("window")
@@ -756,7 +788,7 @@ Screen.createLauncher = function() {
 	panel.element.style.width  = size.width  + "px"
 	panel.element.style.height = height + "px"
 
-	// detail.element.style.zIndex = detail.front
+	// detail.element.style.zIndex = detail.layer
 	panel.element.style.zIndex = 0
 
 	var bar = document.createElement("section")

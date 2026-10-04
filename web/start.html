@@ -45,38 +45,6 @@
 							rgba( 99%,  0%,  0%, .40)
 						);
 		}
-		.background {
-			width: 100dvw;
-			height: 100dvh;
-			background-image: url("/background-gray.png");
-			background-size: cover;
-		}
-		a {
-			text-decoration: none;
-			color: #aaa;
-		}
-		a:visited {
-			color: #aaa;
-		}
-		a:hover {
-			color: #333;
-			cursor: pointer;
-		}
-		
-		button {
-			background: #ccc;
-			color: #333;
-			border: .1rem solid #aaa;
-			padding: .5rem 1rem;
-			border-radius: .35rem;
-		}
-		button:hover {
-			background: #eee;
-		}
-		button:active {
-			border: .1rem solid #ddd;
-		}
-		
 	</style>
 	
 	<script src="/andromeda.js"></script>
@@ -97,6 +65,7 @@
 			Screen.setIcon("Text Editor",  Icon.documentIcon)
 			Screen.setIcon("Photo Viewer", Icon.photoIcon)
 			Screen.setIcon("Currency",     Icon.signalIcon)
+			
 		})
 		
 		function createTextEditor(file) {
@@ -184,21 +153,6 @@
 			}
 		}
 		
-		/*
-		function createPhotoViewer() {
-			var viewer = Screen.createWindow("Photo Viewer")
-			var container = viewer.element.querySelector(".container")
-			container.style.padding = 0
-			
-			var image = document.createElement("img")
-			image.src = "/sample-photo.jpg"
-			image.style.display = "block"
-			image.style.width   = "100%"
-			
-			Screen.addElement(viewer, image)
-		}
-		*/
-		
 		function createCurrency() {
 			var main = Screen.createWindow("Currency")
 			var container = main.element.querySelector(".container")
@@ -233,7 +187,7 @@
 				var location = "https://api.coinbase.com" +
 								"/v2/prices/" + items[i] + "/spot"
 				fetch(location).then( e => e.json() ).then(e => {
-					console.log(e)
+					// console.log(e)
 					var symbol   = e.data.base + "-" + e.data.currency
 					var selector = "." + symbol
 					var element  = container.querySelector(selector)
