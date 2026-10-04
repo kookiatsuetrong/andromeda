@@ -6,10 +6,69 @@
 		<title>Sample Notepad</title>
 	</head>
 	<body>
-
-		<canvas id="canvas" width="600" height="400">
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<canvas id="canvas" width="800" height="600">
 			Your browser does not support the canvas element.
 		</canvas>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
+		<br/>
 	</body>
 
 	<style>
@@ -17,19 +76,19 @@
 			margin: 0;
 			padding: 0;
 		}
-	body {
-		margin: 0;
-		padding: 0;
-	}
-	#canvas {
-		border-radius: 1rem;
-		box-shadow: 0 0 .1rem black;
-		touch-action: none;
-		display: block;
-		padding: 0;
-		margin: 0;
-		margin: 5rem auto;
-	}
+		body {
+			margin: 0;
+			padding: 0;
+		}
+		#canvas {
+			border-radius: 1rem;
+			box-shadow: 0 0 .1rem black;
+			touch-action: none;
+			display: block;
+			padding: 0;
+			margin: 0;
+			margin: 1rem auto;
+		}
 	</style>
 
 	<script>
@@ -51,32 +110,37 @@
 		// try event.pressure
 
 		if (event.pointerType == "pen") {
-			var bounding = canvas.getBoundingClientRect()
+			event.preventDefault()
+			// canvas.setPointerCapture(event.pointerId)
+			// var bound = canvas.getBoundingClientRect()
 			var p = { }
-			p.x = event.clientX - bounding.left
-			p.y = event.clientY - bounding.top
+			p.x = event.offsetX
+			p.y = event.offsetY
 			points.push(p)
 			
 			ctx.beginPath()
-			ctx.arc(p.x, p.y, 10 * event.pressure, 0, 2 * Math.PI, false)
-			ctx.fillStyle = "salmon"
+			ctx.arc(p.x, p.y, 5 * event.pressure, 0, 2 * Math.PI, false)
+			ctx.fillStyle = "rgba(99%, 10%, 10%, 0.75)"
 			ctx.fill()
 		}
 	}
 
 	function handleMove(event) {
+		event.preventDefault()
+			
 		if (event.pointerType == "pen" && points.length > 0) {
-			var bounding = canvas.getBoundingClientRect()
+			// var bound = canvas.getBoundingClientRect()
 			var p = { }
-			p.x = event.clientX - bounding.left
-			p.y = event.clientY - bounding.top
+			p.x = event.offsetX
+			p.y = event.offsetY
 			var last = points[points.length - 1]
+			console.log(event)
 
 			ctx.beginPath()
 			ctx.moveTo(last.x, last.y)
 			ctx.lineTo(p.x, p.y)
 			ctx.lineWidth = 5 * event.pressure
-			ctx.strokeStyle = "rgba(99%, 10%, 10%, 0.5)"
+			ctx.strokeStyle = "rgba(99%, 10%, 10%, 0.75)"
 			ctx.stroke()
 
 			points.push(p)
@@ -85,6 +149,8 @@
 	
 	function handleFinish(event) {
 		if (event.pointerType == "pen") {
+			// canvas.releasePointerCapture(event.pointerId)
+			// canvas.style.touchAction = "auto"
 			points = [ ]
 		}
 	}
