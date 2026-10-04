@@ -42,9 +42,19 @@
 		<br/>
 		<br/>
 		<br/>
+		
+		<p>
+			This is a sample text.
+		</p>
+		
 		<canvas id="canvas" width="800" height="600">
 			Your browser does not support the canvas element.
 		</canvas>
+		
+		<p>
+			This is a sample text.
+		</p>
+		
 		<br/>
 		<br/>
 		<br/>
@@ -84,6 +94,7 @@
 			border-radius: 1rem;
 			box-shadow: 0 0 .1rem black;
 			touch-action: none;
+			user-select: none;
 			display: block;
 			padding: 0;
 			margin: 0;
@@ -98,20 +109,26 @@
 	canvas.addEventListener("pointerdown", handleStart)
 	canvas.addEventListener("pointermove", handleMove)
 	canvas.addEventListener("pointerup",   handleFinish)
+	
+	window.addEventListener("selectstart", e => {
+		e.preventDefault()
+	})
 
 	var points = [ ]
 
 	function handleStart(event) {
-		console.log(event)
-		console.log(event.pointerType)  // pen, mouse, touch
-		console.log(event.pressure)
+		// console.log(event)
+		// console.log(event.pointerType)  // pen, mouse, touch
+		// console.log(event.pressure)
 
 		// try event.tiltX, event.tiltY
 		// try event.pressure
+		
+		// event.preventDefault()
+		// event.stopPropagation()
 
 		if (event.pointerType == "pen") {
-			event.preventDefault()
-			// canvas.setPointerCapture(event.pointerId)
+			canvas.setPointerCapture(event.pointerId)
 			// var bound = canvas.getBoundingClientRect()
 			var p = { }
 			p.x = event.offsetX
@@ -126,8 +143,10 @@
 	}
 
 	function handleMove(event) {
-		event.preventDefault()
 			
+		// event.preventDefault()
+		// event.stopPropagation()
+		
 		if (event.pointerType == "pen" && points.length > 0) {
 			// var bound = canvas.getBoundingClientRect()
 			var p = { }
@@ -147,10 +166,19 @@
 	}
 	
 	function handleFinish(event) {
+		
+		// event.preventDefault()
+		// event.stopPropagation()
+		
 		if (event.pointerType == "pen") {
-			// canvas.releasePointerCapture(event.pointerId)
+			canvas.releasePointerCapture(event.pointerId)
 			// canvas.style.touchAction = "auto"
 			points = [ ]
+			// document.body.style.userSelect = "auto"
+		}
+		
+		if (window.getSelection()) {
+			window.getSelection().removeAllRanges()
 		}
 	}
 
