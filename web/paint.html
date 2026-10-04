@@ -109,6 +109,8 @@
 	canvas.addEventListener("pointerdown", handleStart)
 	canvas.addEventListener("pointermove", handleMove)
 	canvas.addEventListener("pointerup",   handleFinish)
+	
+	canvas.addEventListener("contextmenu",   e => e.preventDefault() )
 
 	var points = [ ]
 
@@ -124,6 +126,7 @@
 		// event.stopPropagation()
 
 		if (event.pointerType == "pen") {
+			event.preventDefault()
 			canvas.setPointerCapture(event.pointerId)
 			// var bound = canvas.getBoundingClientRect()
 			var p = { }
@@ -131,10 +134,12 @@
 			p.y = event.offsetY
 			points.push(p)
 			
+			/*
 			ctx.beginPath()
 			ctx.arc(p.x, p.y, 5 * event.pressure, 0, 2 * Math.PI, false)
 			ctx.fillStyle = "rgba(99%, 10%, 10%, 0.75)"
 			ctx.fill()
+			*/
 		}
 	}
 
@@ -144,6 +149,7 @@
 		// event.stopPropagation()
 		
 		if (event.pointerType == "pen" && points.length > 0) {
+			event.preventDefault()
 			// var bound = canvas.getBoundingClientRect()
 			var p = { }
 			p.x = event.offsetX
@@ -167,10 +173,9 @@
 		// event.stopPropagation()
 		
 		if (event.pointerType == "pen") {
+			event.preventDefault()
 			canvas.releasePointerCapture(event.pointerId)
-			// canvas.style.touchAction = "auto"
 			points = [ ]
-			// document.body.style.userSelect = "auto"
 		}
 		
 		if (window.getSelection()) {
