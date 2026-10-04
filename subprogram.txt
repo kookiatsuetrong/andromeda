@@ -1,0 +1,42 @@
+
+Screen.getSize()		Get the web browser size.
+Screen.start()
+Screen.associate(name, mime)
+
+Screen.defaultWidth  = 480
+Screen.defaultHeight = 360
+
+Screen.registerApp(name, f)
+
+Screen.startAppByDataType(mime, data)
+Screen.setIcon(name, icon)
+Screen.getActiveWindow()
+
+Screen.createDialog(text)
+Screen.createWindow(text)
+
+Screen.startMouseResizeWindow(event, pane)
+add    continueMouseResizeWindow(event)
+add    finishMouseResizeWindow(event)
+
+Screen.startMouseMoveWindow(event, pane)
+Screen.continueMouseMoveWindow(event)
+Screen.finishMouseMoveWindow(event)
+
+Screen.startFingerResizeWindow(event, pane)
+add    continueFingerResizeWindow(event)
+add    finishFingerResizeWindow(event)
+
+Screen.startFingerMoveWindow(event, pane)
+Screen.continueFingerMoveWindow(event)
+Screen.finishFingerMoveWindow(event)
+
+Screen.removeWindow(pane)
+Screen.activateWindow(pane)
+Screen.enlargeWindow(pane)
+Screen.restoreWindow(pane)
+Screen.centerWindow(pane)
+
+Screen.createLauncher()
+Screen.addElement(pane, element)
+Screen.addStyle(css)
