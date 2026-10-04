@@ -109,10 +109,6 @@
 	canvas.addEventListener("pointerdown", handleStart)
 	canvas.addEventListener("pointermove", handleMove)
 	canvas.addEventListener("pointerup",   handleFinish)
-	
-	window.addEventListener("selectstart", e => {
-		e.preventDefault()
-	})
 
 	var points = [ ]
 
