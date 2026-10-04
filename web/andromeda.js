@@ -138,7 +138,7 @@ Screen.registerApp = function(name, f) {
 	
 	if (index >= 0) {
 		var icon = document.createElement("img")
-		icon.src = Screen.appIcon
+		icon.src = Icon.appIcon
 
 		var element = document.createElement("button")
 		element.style.border = "none"
@@ -169,7 +169,7 @@ Screen.registerApp = function(name, f) {
 			var detail = { }
 			detail.name = name
 			detail.start = f
-			detail.icon = Screen.appIcon
+			detail.icon = Icon.appIcon
 			Screen.apps.push(detail)
 		}
 		
@@ -397,11 +397,6 @@ Screen.createWindow = function(text) {
 
 	detail.element.style.zIndex = detail.front
 	
-	detail.element.addEventListener("mousedown", 
-							e => Screen.startMouseResizing(e, detail))
-	detail.element.addEventListener("touchstart", 
-							e => Screen.startFingerResizing(e, detail))
-
 	var bar = document.createElement("section")
 	bar.classList.add("bar")
 	bar.style.background = "rgba(255, 255, 255, .80)"
@@ -416,7 +411,7 @@ Screen.createWindow = function(text) {
 								e => Screen.removeWindow(detail))
 	closeButton.addEventListener("touchend", 
 								e => Screen.removeWindow(detail))
-	closeButton.src = Screen.closeIcon
+	closeButton.src = Icon.closeIcon
 	closeButton.style.margin = "-.1rem .5rem 0 1rem"
 	closeButton.style.float  = "right"
 	bar.appendChild(closeButton)
@@ -427,7 +422,7 @@ Screen.createWindow = function(text) {
 	maximizeButton.addEventListener("touchend", 
 								e => Screen.enlargeWindow(detail))
 								
-	maximizeButton.src = Screen.enlargeIcon
+	maximizeButton.src = Icon.enlargeIcon
 	maximizeButton.style.margin = "-.1rem 0 0 1rem"
 	maximizeButton.style.float  = "right"
 	bar.appendChild(maximizeButton)
@@ -437,7 +432,7 @@ Screen.createWindow = function(text) {
 								e => Screen.restoreWindow(detail))
 	restoreButton.addEventListener("touchend", 
 								e => Screen.restoreWindow(detail))
-	restoreButton.src = Screen.restoreIcon
+	restoreButton.src = Icon.restoreIcon
 	restoreButton.style.margin = "-.1rem 0 0 1rem"
 	restoreButton.style.float  = "right"
 	bar.appendChild(restoreButton)
@@ -459,30 +454,31 @@ Screen.createWindow = function(text) {
 		detail.element.style.opacity = 1
 	}, 200)
 
-	bar.addEventListener("mousedown", e => {
-		Screen.activateWindow(detail)
-	})
-	
-	bar.addEventListener("touchstart", e => {
-		Screen.activateWindow(detail)
-	})
-	
-	bar.addEventListener("mousedown", 
-						e => Screen.startMouseMoveWindow(e, detail))
+	detail.element.addEventListener("mousedown", 
+						e => Screen.startMouseResizeWindow(e, detail))
+	detail.element.addEventListener("touchstart", 
+						e => Screen.startFingerResizeWindow(e, detail))
 
-	bar.addEventListener("touchstart", 
+	bar.addEventListener("mousedown", 
+						e => Screen.activateWindow(detail))
+	bar.addEventListener("touchstart",
+						e => Screen.activateWindow(detail))
+	
+	bar.addEventListener("mousedown",
+						e => Screen.startMouseMoveWindow(e, detail))
+	bar.addEventListener("touchstart",
 						e => Screen.startFingerMoveWindow(e, detail))
 	
 	return detail
 }
 
-Screen.startMouseResizing = function(event, pane) {
+Screen.startMouseResizeWindow = function(event, pane) {
 	var bound = pane.element.getBoundingClientRect()
 	
 	var distanceX = Math.abs(event.offsetX - bound.width)
 	var distanceY = Math.abs(event.offsetY - bound.height)
 
-	if (distanceX <= 32 && distanceY <= 32) {
+	if (distanceX <= 64 && distanceY <= 64) {
 		event.preventDefault()
 		console.log("Window resizing by mouse")
 		window.resizing = pane
@@ -544,7 +540,7 @@ Screen.finishMouseMoveWindow = function(event) {
 	}
 }
 
-Screen.startFingerResizing = function(event, pane) {
+Screen.startFingerResizeWindow = function(event, pane) {
 	if (event.changedTouches.length == 0) return
 
 	var bound = pane.element.getBoundingClientRect()
@@ -559,7 +555,7 @@ Screen.startFingerResizing = function(event, pane) {
 	console.log("distanceY ", distanceY)
 	*/
 
-	if (distanceX <= 30 && distanceY <= 30) {
+	if (distanceX <= 32 && distanceY <= 32) {
 		event.preventDefault()
 		console.log("Window resizing by finger")
 		window.resizing = pane
@@ -785,7 +781,23 @@ Screen.createLauncher = function() {
 	return panel
 }
 
-Screen.enlargeIcon = "data:image/svg+xml," + 
+Screen.addElement = function(pane, element) {
+	var container = pane.element.querySelector(".container")
+	container.appendChild(element)
+}
+
+Screen.addStyle = function(css) {
+	var style = document.createElement("style")
+	style.appendChild(document.createTextNode(css))
+	document.getElementsByTagName("head")
+				[0].appendChild(style)
+}
+
+Screen.start()
+
+var Icon = { }
+
+Icon.enlargeIcon = "data:image/svg+xml," + 
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg"
 			width="24" height="24" 
@@ -796,7 +808,7 @@ Screen.enlargeIcon = "data:image/svg+xml," +
 		</svg>`)
 
 
-Screen.restoreIcon = "data:image/svg+xml," + 
+Icon.restoreIcon = "data:image/svg+xml," + 
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg"
 			width="24" height="24" 
@@ -806,7 +818,7 @@ Screen.restoreIcon = "data:image/svg+xml," +
 			<path d="M17 7l-9.2 9.2M7 7v10h10"/>
 		</svg>`)
 
-Screen.checkIcon = "data:image/svg+xml," + 
+Icon.checkIcon = "data:image/svg+xml," + 
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
@@ -816,7 +828,7 @@ Screen.checkIcon = "data:image/svg+xml," +
 			<polyline points="20 6 9 17 4 12"></polyline>
 		</svg>`)
 
-Screen.moveIcon = "data:image/svg+xml," + 
+Icon.moveIcon = "data:image/svg+xml," + 
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
@@ -828,7 +840,7 @@ Screen.moveIcon = "data:image/svg+xml," +
 				3M3.3 12h17.4M12 3.2v17.6" />
 		</svg>`)
 
-Screen.closeIcon = "data:image/svg+xml," + 
+Icon.closeIcon = "data:image/svg+xml," + 
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
@@ -839,7 +851,7 @@ Screen.closeIcon = "data:image/svg+xml," +
 			<line x1="6" y1="6" x2="18" y2="18" />
 		</svg>`)
 
-Screen.documentIcon = "data:image/svg+xml," + 
+Icon.documentIcon = "data:image/svg+xml," + 
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
@@ -851,7 +863,7 @@ Screen.documentIcon = "data:image/svg+xml," +
 			<path d="M14 3v5h5M16 13H8M16 17H8M10 9H8" />
 		</svg>`)
 
-Screen.photoIcon = "data:image/svg+xml," + 
+Icon.photoIcon = "data:image/svg+xml," + 
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
@@ -863,7 +875,7 @@ Screen.photoIcon = "data:image/svg+xml," +
 			<path d="M20.4 14.5L16 10 4 20" />
 		</svg>`)
 
-Screen.signalIcon = "data:image/svg+xml," + 
+Icon.signalIcon = "data:image/svg+xml," + 
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
@@ -878,7 +890,7 @@ Screen.signalIcon = "data:image/svg+xml," +
 
 		</svg>`)
 
-Screen.appIcon = "data:image/svg+xml," + 
+Icon.appIcon = "data:image/svg+xml," + 
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
@@ -889,7 +901,7 @@ Screen.appIcon = "data:image/svg+xml," +
 			<path d="M3 9h18" />
 		</svg>`)
 
-Screen.resizeIcon = "data:image/svg+xml," + 
+Icon.resizeIcon = "data:image/svg+xml," + 
 		encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" 
 			width="24" height="24" 
@@ -898,17 +910,3 @@ Screen.resizeIcon = "data:image/svg+xml," +
 			stroke-linejoin="round">
 			<path d="M7 7l9.2 9.2M17 7v10H7" />
 		</svg>`)
-
-Screen.addElement = function(pane, element) {
-	var container = pane.element.querySelector(".container")
-	container.appendChild(element)
-}
-
-Screen.addStyle = function(css) {
-	var style = document.createElement("style")
-	style.appendChild(document.createTextNode(css))
-	document.getElementsByTagName("head")
-				[0].appendChild(style)
-}
-
-Screen.start()
