@@ -51,6 +51,8 @@
 			Your browser does not support the canvas element.
 		</canvas>
 		
+		<button onclick="save()">Save</button>
+		
 		<p>
 			This is a sample text.
 		</p>
@@ -144,26 +146,26 @@
 	}
 
 	function handleMove(event) {
-			
+		
 		// event.preventDefault()
 		// event.stopPropagation()
 		
 		if (event.pointerType == "pen" && points.length > 0) {
 			event.preventDefault()
 			// var bound = canvas.getBoundingClientRect()
+			var last = points[points.length - 1]
+			
 			var p = { }
 			p.x = event.offsetX
 			p.y = event.offsetY
-			var last = points[points.length - 1]
+			points.push(p)
 
 			ctx.beginPath()
 			ctx.moveTo(last.x, last.y)
 			ctx.lineTo(p.x, p.y)
-			ctx.lineWidth = 5 * event.pressure
+			ctx.lineWidth = 2.5 * event.pressure
 			ctx.strokeStyle = "rgba(99%, 10%, 10%, 0.75)"
 			ctx.stroke()
-
-			points.push(p)
 		}
 	}
 	
@@ -181,6 +183,14 @@
 		if (window.getSelection()) {
 			window.getSelection().removeAllRanges()
 		}
+	}
+	
+	function save() {
+		var result = canvas.toDataURL("image/png")
+		console.log(result)
+		var image = document.createElement("img")
+		image.src = result
+		document.body.appendChild(image)
 	}
 
 	</script>
