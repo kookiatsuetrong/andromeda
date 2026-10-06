@@ -110,6 +110,7 @@
 	canvas.addEventListener("pointerdown", handleStart)
 	canvas.addEventListener("pointermove", handleMove)
 	canvas.addEventListener("pointerup",   handleFinish)
+	// canvas.addEventListener("touchmove",   handleClear)
 	
 	canvas.addEventListener("contextmenu",   e => e.preventDefault() )
 
@@ -128,18 +129,17 @@
 
 		if (event.pointerType == "pen") {
 			event.preventDefault()
-			canvas.setPointerCapture(event.pointerId)
+			// canvas.setPointerCapture(event.pointerId)
 			// var bound = canvas.getBoundingClientRect()
-			var p = { }
-			p.x = event.offsetX
-			p.y = event.offsetY
-			points.push(p)
 			
-			if (event.pressure >= 0.1) {
-				ctx.beginPath()
-				ctx.arc(p.x, p.y, 2.5 * event.pressure, 0, 2 * Math.PI, false)
-				ctx.fillStyle = "rgba(99%, 10%, 10%, 0.75)"
-				ctx.fill()
+			if (event.pressure >= 0.05) {
+				var width = 3.25 * event.pressure
+				if (width <= 1) width = 1
+				
+				var p = { }
+				p.x = event.offsetX
+				p.y = event.offsetY
+				points.push(p)
 		   }
 		}
 	}
@@ -149,23 +149,25 @@
 		// event.preventDefault()
 		// event.stopPropagation()
 		
-		if (event.pointerType == "pen" && points.length > 0) {
+		if (event.pointerType == "pen") {
 			event.preventDefault()
 			// var bound = canvas.getBoundingClientRect()
-			if (event.pressure > 0.1) {
-				var last = points[points.length - 1]
-
+			
+			if (event.pressure > 0.05) {
 				var p = { }
 				p.x = event.offsetX
 				p.y = event.offsetY
 				points.push(p)
-
-				ctx.beginPath()
-				ctx.moveTo(last.x, last.y)
-				ctx.lineTo(p.x, p.y)
-				ctx.lineWidth = 2.5 * event.pressure
-				ctx.strokeStyle = "rgba(99%, 10%, 10%, 0.75)"
-				ctx.stroke()
+				
+				if (points.length > 1) {
+					var last = points[points.length - 2]
+					ctx.beginPath()
+					ctx.moveTo(last.x, last.y)
+					ctx.lineTo(p.x, p.y)
+					ctx.lineWidth = 4.0 * event.pressure
+					ctx.strokeStyle = "rgba(10%, 10%, 99%, 0.75)"
+					ctx.stroke()
+				}
 			}
 		}
 	}
@@ -177,7 +179,16 @@
 		
 		if (event.pointerType == "pen") {
 			event.preventDefault()
-			canvas.releasePointerCapture(event.pointerId)
+			// canvas.releasePointerCapture(event.pointerId)
+			
+			if (points.length == 1) {
+				var p = points[0]
+				var width = 2.75
+				ctx.beginPath()
+				ctx.arc(p.x, p.y, width, 0, 2 * Math.PI)
+				ctx.fillStyle = "rgba(10%, 10%, 99%, 0.75)"
+				ctx.fill()
+			}
 			points = [ ]
 		}
 		
@@ -185,6 +196,17 @@
 			window.getSelection().removeAllRanges()
 		}
 	}
+	
+	/*
+	function handleClear(event) {
+		console.log(event)
+		var t = event.touches[0]
+		// ctx.beginPath()
+		ctx.clearRect(t.clientX - 20, t.clientY - 20, 40, 40)
+		// ctx.clearRect(t.pageX - 32, t.pageY - 32, 64, 64)
+		// ctx.fill()
+	}
+	*/
 	
 	function save() {
 		var result = canvas.toDataURL("image/png")
