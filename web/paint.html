@@ -135,12 +135,12 @@
 			p.y = event.offsetY
 			points.push(p)
 			
-			/*
-			ctx.beginPath()
-			ctx.arc(p.x, p.y, 5 * event.pressure, 0, 2 * Math.PI, false)
-			ctx.fillStyle = "rgba(99%, 10%, 10%, 0.75)"
-			ctx.fill()
-			*/
+			if (event.pressure >= 0.1) {
+				ctx.beginPath()
+				ctx.arc(p.x, p.y, 2.5 * event.pressure, 0, 2 * Math.PI, false)
+				ctx.fillStyle = "rgba(99%, 10%, 10%, 0.75)"
+				ctx.fill()
+		   }
 		}
 	}
 
@@ -152,19 +152,21 @@
 		if (event.pointerType == "pen" && points.length > 0) {
 			event.preventDefault()
 			// var bound = canvas.getBoundingClientRect()
-			var last = points[points.length - 1]
-			
-			var p = { }
-			p.x = event.offsetX
-			p.y = event.offsetY
-			points.push(p)
+			if (event.pressure > 0.1) {
+				var last = points[points.length - 1]
 
-			ctx.beginPath()
-			ctx.moveTo(last.x, last.y)
-			ctx.lineTo(p.x, p.y)
-			ctx.lineWidth = 2.5 * event.pressure
-			ctx.strokeStyle = "rgba(99%, 10%, 10%, 0.75)"
-			ctx.stroke()
+				var p = { }
+				p.x = event.offsetX
+				p.y = event.offsetY
+				points.push(p)
+
+				ctx.beginPath()
+				ctx.moveTo(last.x, last.y)
+				ctx.lineTo(p.x, p.y)
+				ctx.lineWidth = 2.5 * event.pressure
+				ctx.strokeStyle = "rgba(99%, 10%, 10%, 0.75)"
+				ctx.stroke()
+			}
 		}
 	}
 	
