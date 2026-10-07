@@ -55,7 +55,8 @@
 			Screen.registerApp("Photo Viewer", createPhotoViewer )
 			Screen.registerApp("Currency",     createCurrency    )
 			Screen.registerApp("Sample",       createSampleApp   )
-			Screen.registerApp("Text Editor",  e => createTextEditor(e)  )
+			Screen.registerApp("Text Editor",  e => createTextEditor(e) )
+			Screen.registerApp("Memo",         e => createMemoApp(e)    )
 
 			Screen.associate("Text Editor",  "text/plain")
 			Screen.associate("Photo Viewer", "image/jpg" )
@@ -67,6 +68,173 @@
 			Screen.setIcon("Currency",     Icon.signalIcon)
 			
 		})
+		
+		function createMemoApp(file) {
+			var main = Screen.createWindow("Memo")
+			
+			Screen.addMenu(main, "Download", e => {
+				var content = main.element.querySelectorAll(".container > *")
+				console.log(content)
+				for (var c of content) {
+					if (c.tagName == "TEXTAREA") {
+						console.log(c.value)
+					}
+					if (c.tagName == "CANVAS") {
+						console.log("a canvas")
+					}
+				}
+			})
+			
+			Screen.addMenu(main, "Text", e => {
+				var editor = document.createElement("textarea")
+				editor.style.display    = "block"
+				editor.style.padding    = ".75rem"
+				editor.style.margin     = "0 0 .5rem 0"
+				editor.style.border     = "none"
+				editor.style.boxShadow  = "0 0 .1rem #ddd"
+				
+				editor.style.resize     = "none"
+				editor.style.overflow   = "hidden"
+				editor.style.width      = "calc(100% - 1.50rem)"
+				editor.style.height     = "2rem"
+				editor.style.lineHeight = "1.5rem"
+				editor.style.fontSize   = "1rem"
+				editor.style.fontFamily = "roboto-mono, sarabun, monospace"
+				
+				editor.style.borderRadius = ".5rem"
+
+				editor.spellcheck = false
+				editor.autofocus = true
+				editor.focus()
+				
+				Screen.addElement(main, editor)
+				
+				editor.addEventListener("keyup", e => {
+					var text = editor.value
+					var lines = text.split("\n")
+					var result = window.getComputedStyle(editor)					
+					var h = parseInt(result.lineHeight) * lines.length
+					h += 12
+					editor.style.height = h + "px"
+				})
+			})
+			
+			Screen.addMenu(main, "Drawing", e => {
+				var bound = main.element.getBoundingClientRect()
+				
+				var canvas = document.createElement("canvas")
+				canvas.width = bound.width - 40
+				canvas.height = "400"
+				
+				canvas.style.display    = "block"
+				canvas.style.background = "#f8f8f8"
+				canvas.style.margin     = "0 0 .5rem 0"
+				canvas.style.border     = "none"
+				canvas.style.boxShadow  = "0 0 .1rem #ddd"
+				// canvas.style.width      = "calc(100% - .125rem)"
+				canvas.style.width      = canvas.width + "px"
+				canvas.style.height     = "400px"
+				canvas.style.borderRadius = ".75rem"
+				canvas.style.touchAction  = "none"
+				canvas.style.userSelect   = "none"
+				
+				Screen.addElement(main, canvas)				
+				
+				var resizeObserver = new ResizeObserver( e => {
+					console.log("Resizing")
+					console.log(e[0].contentRect)
+					canvas.width = e[0].contentRect.width - 24
+					canvas.style.width = canvas.width + "px"
+				})
+				resizeObserver.observe(main.element)
+				
+				var points = [ ]
+				var ctx = canvas.getContext("2d")
+
+				canvas.addEventListener("pointerdown", 
+					function handleStart(event) {
+						// console.log(event)
+						// console.log(event.pointerType)
+						// console.log(event.pressure)
+
+						// try event.tiltX, event.tiltY
+						// try event.pressure
+
+						// event.preventDefault()
+						// event.stopPropagation()
+
+						if (event.pointerType == "pen") {
+							event.preventDefault()
+							// canvas.setPointerCapture(event.pointerId)
+							// var bound = canvas.getBoundingClientRect()
+
+							if (event.pressure >= 0.05) {
+								var width = 3.25 * event.pressure
+								if (width <= 1) width = 1
+
+								var p = { }
+								p.x = event.offsetX
+								p.y = event.offsetY
+								points.push(p)
+						   }
+						}
+					})
+				
+				canvas.addEventListener("pointermove", 
+					function handleMove(event) {		
+						// event.preventDefault()
+						// event.stopPropagation()
+
+						if (event.pointerType == "pen") {
+							event.preventDefault()
+							// var bound = canvas.getBoundingClientRect()
+
+							if (event.pressure > 0.05) {
+								var p = { }
+								p.x = event.offsetX
+								p.y = event.offsetY
+								points.push(p)
+
+								if (points.length > 1) {
+									var last = points[points.length - 2]
+									ctx.beginPath()
+									ctx.moveTo(last.x, last.y)
+									ctx.lineTo(p.x, p.y)
+									ctx.lineWidth = 4.0 * event.pressure
+									ctx.strokeStyle = "rgba(10%,10%,99%,0.75)"
+									ctx.stroke()
+								}
+							}
+						}
+					})
+				
+				canvas.addEventListener("pointerup",  
+					function handleFinish(event) {
+
+						// event.preventDefault()
+						// event.stopPropagation()
+
+						if (event.pointerType == "pen") {
+							event.preventDefault()
+							// canvas.releasePointerCapture(event.pointerId)
+
+							if (points.length == 1) {
+								var p = points[0]
+								var width = 2.75
+								ctx.beginPath()
+								ctx.arc(p.x, p.y, width, 0, 2 * Math.PI)
+								ctx.fillStyle = "rgba(10%, 10%, 99%, 0.75)"
+								ctx.fill()
+							}
+							points = [ ]
+						}
+
+						if (window.getSelection()) {
+							window.getSelection().removeAllRanges()
+						}
+					})
+			})
+		}
 		
 		function createTextEditor(file) {
 			var main = Screen.createWindow("Text Editor")

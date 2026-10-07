@@ -69,7 +69,8 @@ Screen.start = async function() {
 		})
 	})
 	
-	document.body.style.fontFamily = "open-sans, sarabun, sans-serif, " +
+	document.body.style.fontFamily = "open-sans, sarabun, " +
+									"sans-serif, " +
 									"roboto-mono"
 
 	var css = `
@@ -226,6 +227,16 @@ Screen.registerApp = function(name, f) {
 
 Screen.startAppByDataType = function(mime, data) {
 	var name = Screen.workers[mime]
+	if (name == null) {
+		
+		if (data.name.endsWith(".memo")) {
+			
+			console.log("The Memo File")
+		}
+		
+		name = "Memo"
+	}
+	
 	if (name == null) {
 		console.log("Unknown Data Type")
 		// TODO: ask user to find new app
@@ -554,7 +565,6 @@ Screen.continueMouseMoveWindow = function(event) {
 	if (window.resizing == null) { }
 	if (window.resizing != null) {
 		event.preventDefault()
-		console.log(event)
 
 		window.resizingWidth  += event.movementX
 		window.resizingHeight += event.movementY
