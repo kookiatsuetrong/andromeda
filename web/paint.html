@@ -8,40 +8,6 @@
 	<body>
 		<br/>
 		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
 		
 		<p>
 			This is a sample text.
@@ -51,7 +17,7 @@
 			Your browser does not support the canvas element.
 		</canvas>
 
-		<button onclick="save()">Save</button>
+		<a href="javascript:download()" class="download">Download</a>
 
 		<p>
 			This is a sample text.
@@ -214,6 +180,13 @@
 		var image = document.createElement("img")
 		image.src = result
 		document.body.appendChild(image)
+	}
+	
+	function download() {
+		var link = document.createElement("a")
+		link.download = "sample.png"
+		link.href = canvas.toDataURL("image/png")
+		link.click()
 	}
 
 	</script>
