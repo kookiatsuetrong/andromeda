@@ -87,25 +87,27 @@
 			
 			Screen.addMenu(main, "Text", e => {
 				var editor = document.createElement("textarea")
-				editor.style.display    = "block"
-				editor.style.padding    = ".75rem"
-				editor.style.margin     = "0 0 .5rem 0"
-				editor.style.border     = "none"
-				editor.style.boxShadow  = "0 0 .1rem #ddd"
+				editor.style.display      = "block"
+				editor.style.padding      = ".75rem"
+				editor.style.margin       = "0 auto"
+				editor.style.marginBottom = ".5rem"
+				editor.style.border       = "none"
+				editor.style.boxShadow    = "0 0 .1rem #999"
 				
-				editor.style.resize     = "none"
-				editor.style.overflow   = "hidden"
-				editor.style.width      = "calc(100% - 1.50rem)"
-				editor.style.height     = "2rem"
-				editor.style.lineHeight = "1.5rem"
-				editor.style.fontSize   = "1rem"
-				editor.style.fontFamily = "roboto-mono, sarabun, monospace"
-				
+				editor.style.resize       = "none"
+				editor.style.overflow     = "hidden"
+				// editor.style.width     = "calc(100% - 1.50rem)"
+				editor.style.width        = "458px"
+				editor.style.height       = "2rem"
+				editor.style.lineHeight   = "1.5rem"
+				editor.style.fontSize     = "1rem"
+				editor.style.fontFamily   = "roboto-mono, sarabun, monospace"
 				editor.style.borderRadius = ".5rem"
 
 				editor.spellcheck = false
 				editor.autofocus = true
 				editor.focus()
+				editor.placeholder = "Text"
 				
 				Screen.addElement(main, editor)
 				
@@ -120,26 +122,28 @@
 			})
 			
 			Screen.addMenu(main, "Drawing", e => {
-				var bound = main.element.getBoundingClientRect()
+				// var bound = main.element.getBoundingClientRect()
 				
 				var canvas = document.createElement("canvas")
-				canvas.width = bound.width - 40
-				canvas.height = "400"
+				canvas.width  = 480
+				canvas.height = 480
 				
-				canvas.style.display    = "block"
-				canvas.style.background = "#f8f8f8"
-				canvas.style.margin     = "0 0 .5rem 0"
-				canvas.style.border     = "none"
-				canvas.style.boxShadow  = "0 0 .1rem #ddd"
-				// canvas.style.width      = "calc(100% - .125rem)"
-				canvas.style.width      = canvas.width + "px"
-				canvas.style.height     = "400px"
-				canvas.style.borderRadius = ".75rem"
+				canvas.style.display      = "block"
+				canvas.style.background   = "#fcfcfc"
+				canvas.style.margin       = "0 auto"
+				canvas.style.marginBottom = ".5rem"
+				canvas.style.border       = "none"
+				canvas.style.boxShadow    = "0 0 .1rem #999"
+				// canvas.style.width     = "calc(100% - .125rem)"
+				canvas.style.width        = canvas.width  + "px"
+				canvas.style.height       = canvas.height + "px"
+				canvas.style.borderRadius = ".5rem"
 				canvas.style.touchAction  = "none"
 				canvas.style.userSelect   = "none"
 				
 				Screen.addElement(main, canvas)				
 				
+				/*
 				var resizeObserver = new ResizeObserver( e => {
 					console.log("Resizing")
 					console.log(e[0].contentRect)
@@ -147,9 +151,18 @@
 					canvas.style.width = canvas.width + "px"
 				})
 				resizeObserver.observe(main.element)
+				*/
 				
 				var points = [ ]
 				var ctx = canvas.getContext("2d")
+				for (var x = 40; x < 480; x += 40) {
+					for (var y = 40; y < 480; y += 40) {
+						ctx.beginPath()
+						ctx.arc(x, y, 4, 0, 2 * Math.PI)
+						ctx.fillStyle = "rgba(0, 0, 0, 0.05)"
+						ctx.fill()
+					}
+				}
 
 				canvas.addEventListener("pointerdown", 
 					function handleStart(event) {

@@ -165,8 +165,8 @@ Screen.associate = function(name, mime) {
 	Screen.workers[mime] = name
 }
 
-Screen.defaultWidth  = 480
-Screen.defaultHeight = 360
+Screen.defaultWidth  = 600
+Screen.defaultHeight = 400
 
 Screen.registerApp = function(name, f) {
 
@@ -855,6 +855,9 @@ Screen.addMenu = function(pane, text, f) {
 	menu.classList.add("menu-item")
 	menu.innerText = text
 	menu.addEventListener("click", e => {
+		f(e)
+	})
+	menu.addEventListener("touchend", e => {
 		f(e)
 	})
 
