@@ -183,9 +183,11 @@
 	}
 	
 	function download() {
+		var data = canvas.toDataURL("image/png")
+		console.log(data)
 		var link = document.createElement("a")
 		link.download = "sample.png"
-		link.href = canvas.toDataURL("image/png")
+		link.href = data
 		link.click()
 	}
 

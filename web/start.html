@@ -71,21 +71,19 @@
 		function createTextEditor(file) {
 			var main = Screen.createWindow("Text Editor")
 			
-			// remove current container
+			// remove existing container
 			var container = main.element.querySelector(".container")
 			main.element.removeChild(container)
 			
 			// use textarea as the container
-
 			var editor = document.createElement("textarea")
-			// editor.style.background = "#eef"
-			editor.style.display = "block"
-			editor.style.padding = ".75rem"
-			editor.style.margin  = 0
-			editor.style.border  = "none"
-			editor.style.resize  = "none"
-			editor.style.width   = "calc(100% - 1.50rem)"
-			editor.style.height  = "calc(100% - 3.50rem)"
+			editor.style.display    = "block"
+			editor.style.padding    = ".75rem"
+			editor.style.margin     = 0
+			editor.style.border     = "none"
+			editor.style.resize     = "none"
+			editor.style.width      = "calc(100% - 1.50rem)"
+			editor.style.height     = "calc(100% - 3.50rem)"
 			editor.style.lineHeight = "1.5rem"
 			editor.style.fontSize   = "1rem"
 			editor.style.fontFamily = "roboto-mono, sarabun, monospace"
@@ -103,13 +101,37 @@
 				}
 			})
 			
+			var originalFileName = ""
+			
 			if (file instanceof File) {
+				console.log(file)
+				originalFileName = file.name
 				var reader = new FileReader()
 				reader.onload = function() {
 					editor.value = reader.result
 				}
 				reader.readAsText(file)
 			}
+			
+			Screen.addMenu(main, "Download", e => {
+				var text = editor.value
+				text = encodeURIComponent(text)
+				var data = "data:text/plain;charset=utf-8," + text
+				
+				var link = document.createElement("a")
+				if (originalFileName == "") {
+					originalFileName = "sample.txt"
+				}
+				link.download = originalFileName
+				link.href = data
+				link.click()
+			})
+			
+			/*
+			Screen.addMenu(main, "Save", e => {
+				console.log(e)
+			})
+			*/
 			
 			main.element.appendChild(editor)
 		}
