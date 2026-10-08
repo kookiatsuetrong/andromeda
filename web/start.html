@@ -73,8 +73,10 @@
 			var main = Screen.createWindow("Memo")
 			var originalFileName = null
 			
+			main.color = "rgba(10%, 10%, 99%, .75)"
+			main.color = "rgba(10%, 70%, 50%, .75)"
+			
 			main.createTextArea = function() {
-				
 				var editor = document.createElement("textarea")
 				editor.style.display      = "block"
 				editor.style.padding      = ".75rem"
@@ -112,13 +114,12 @@
 				return editor
 			}
 			
-			main.createCanvas = function() {
-				
-				// var bound = main.element.getBoundingClientRect()
-				
+			main.createCanvas = function(empty) {
 				var canvas = document.createElement("canvas")
 				canvas.width  = 480
 				canvas.height = 480
+				
+				// var bound = main.element.getBoundingClientRect()
 				
 				canvas.style.display      = "block"
 				canvas.style.background   = "#fcfcfc"
@@ -147,12 +148,14 @@
 				
 				var points = [ ]
 				var ctx = canvas.getContext("2d")
-				for (var x = 40; x < 480; x += 40) {
-					for (var y = 40; y < 480; y += 40) {
-						ctx.beginPath()
-						ctx.arc(x, y, 4, 0, 2 * Math.PI)
-						ctx.fillStyle = "rgba(0, 0, 0, 0.05)"
-						ctx.fill()
+				if (empty == true) {
+					for (var x = 40; x < 480; x += 40) {
+						for (var y = 40; y < 480; y += 40) {
+							ctx.beginPath()
+							ctx.arc(x, y, 4, 0, 2 * Math.PI)
+							ctx.fillStyle = "rgba(0, 0, 0, 0.05)"
+							ctx.fill()
+						}
 					}
 				}
 
@@ -186,7 +189,7 @@
 					})
 				
 				canvas.addEventListener("pointermove", 
-					function handleMove(event) {		
+					function handleMove(event) {
 						// event.preventDefault()
 						// event.stopPropagation()
 
@@ -206,7 +209,7 @@
 									ctx.moveTo(last.x, last.y)
 									ctx.lineTo(p.x, p.y)
 									ctx.lineWidth = 4.0 * event.pressure
-									ctx.strokeStyle = "rgba(10%,10%,99%,0.75)"
+									ctx.strokeStyle = main.color
 									ctx.stroke()
 								}
 							}
@@ -228,7 +231,7 @@
 								var width = 2.75
 								ctx.beginPath()
 								ctx.arc(p.x, p.y, width, 0, 2 * Math.PI)
-								ctx.fillStyle = "rgba(10%, 10%, 99%, 0.75)"
+								ctx.fillStyle = main.color
 								ctx.fill()
 							}
 							points = [ ]
@@ -285,25 +288,37 @@
 			})
 			
 			Screen.addMenu(main, "Drawing", e => {
-				main.createCanvas()
+				main.createCanvas(true)
 			})
 			
-			if (file instanceof File) { 
+			if (file instanceof File) {
 				originalFileName = file.name
 				var reader = new FileReader()
 				reader.onload = function() {
 					var buffer = reader.result
 					var detail = JSON.parse(buffer)
-					for (var e of detail.data) {
+					// for (var e of detail.data) { }
+					
+					detail.data.forEach( e => {
+						
 						if (e.type == "text") {
 							var t = main.createTextArea()
 							t.value = e.data
 						}
+						
 						if (e.type == "photo") {
 							var c = main.createCanvas()
-							// TODO: draw this photo to the canvas
+							var image = document.createElement("img")
+							image.onload = function() {
+								var ctx = c.getContext("2d")
+								ctx.drawImage(image, 0, 0, 
+										image.width, image.height)
+							}
+							image.src = e.data							
 						}
-					}
+						
+					})
+					
 				}
 				reader.readAsText(file)
 			}
