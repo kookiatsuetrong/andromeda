@@ -71,21 +71,10 @@
 		
 		function createMemoApp(file) {
 			var main = Screen.createWindow("Memo")
+			var originalFileName = null
 			
-			Screen.addMenu(main, "Download", e => {
-				var content = main.element.querySelectorAll(".container > *")
-				console.log(content)
-				for (var c of content) {
-					if (c.tagName == "TEXTAREA") {
-						console.log(c.value)
-					}
-					if (c.tagName == "CANVAS") {
-						console.log("a canvas")
-					}
-				}
-			})
-			
-			Screen.addMenu(main, "Text", e => {
+			main.createTextArea = function() {
+				
 				var editor = document.createElement("textarea")
 				editor.style.display      = "block"
 				editor.style.padding      = ".75rem"
@@ -119,9 +108,12 @@
 					h += 12
 					editor.style.height = h + "px"
 				})
-			})
+				
+				return editor
+			}
 			
-			Screen.addMenu(main, "Drawing", e => {
+			main.createCanvas = function() {
+				
 				// var bound = main.element.getBoundingClientRect()
 				
 				var canvas = document.createElement("canvas")
@@ -246,7 +238,75 @@
 							window.getSelection().removeAllRanges()
 						}
 					})
+					
+				return canvas
+			}
+			
+			Screen.addMenu(main, "Download", e => {
+				var content = main.element.querySelectorAll(".container > *")
+				// console.log(content)
+				var buffer = ""
+				var detail = {}
+				detail.data = [ ]
+				for (var c of content) {
+					if (c.tagName == "TEXTAREA") {
+						buffer += "<text>\n"
+						buffer += c.value + "\n"
+						buffer += "</text>\n"
+						
+						var text = { }
+						text.type = "text"
+						text.data = c.value
+						detail.data.push(text)
+					}
+					if (c.tagName == "CANVAS") {
+						buffer += "<photo>\n"
+						buffer += c.toDataURL("image/png") + "\n"
+						buffer += "</photo>\n"
+						
+						var item = { }
+						item.type = "photo"
+						item.data = c.toDataURL("image/png")
+						detail.data.push(item)
+					}
+				}
+				
+				var link = document.createElement("a")
+				link.download = "sample.memo"
+				
+				var data = "data:text/plain;charset=utf-8,"
+				data += JSON.stringify(detail)
+				link.href = data
+				link.click()
 			})
+			
+			Screen.addMenu(main, "Text", e => {
+				main.createTextArea()
+			})
+			
+			Screen.addMenu(main, "Drawing", e => {
+				main.createCanvas()
+			})
+			
+			if (file instanceof File) { 
+				originalFileName = file.name
+				var reader = new FileReader()
+				reader.onload = function() {
+					var buffer = reader.result
+					var detail = JSON.parse(buffer)
+					for (var e of detail.data) {
+						if (e.type == "text") {
+							var t = main.createTextArea()
+							t.value = e.data
+						}
+						if (e.type == "photo") {
+							var c = main.createCanvas()
+							// TODO: draw this photo to the canvas
+						}
+					}
+				}
+				reader.readAsText(file)
+			}
 		}
 		
 		function createTextEditor(file) {
