@@ -1,10 +1,10 @@
 
-Screen.getSize()		Get the web browser size.
-Screen.start()
-Screen.associate(name, mime)
+Screen.getSize()					Get the web browser size.
+Screen.start()						Start the system.
+Screen.associate(name, mime)		Create file association.
 
-Screen.defaultWidth  = 480
-Screen.defaultHeight = 360
+Screen.defaultWidth  = 600
+Screen.defaultHeight = 400
 
 Screen.registerApp(name, f)
 
@@ -38,5 +38,15 @@ Screen.restoreWindow(pane)
 Screen.centerWindow(pane)
 
 Screen.createLauncher()
+
 Screen.addElement(pane, element)
 Screen.addStyle(css)
+Screen.addMenu(pane, text, f)
+
+
+
+
+
+
+
+

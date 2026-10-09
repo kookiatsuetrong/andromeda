@@ -161,8 +161,12 @@ Screen.start = async function() {
 	window.addEventListener("dragover", e => e.preventDefault() )
 }
 
-Screen.associate = function(name, mime) {
+Screen.setDataType = function(name, mime) {
 	Screen.workers[mime] = name
+}
+
+Screen.setExtension = function(name, extension) {
+	Screen.workers[extension] = name
 }
 
 Screen.defaultWidth  = 600
@@ -226,15 +230,17 @@ Screen.registerApp = function(name, f) {
 }
 
 Screen.startAppByDataType = function(mime, data) {
+	
+	// 1. try to find the MIME file type (e.g. text/plain)
 	var name = Screen.workers[mime]
+	
 	if (name == null) {
-		
-		if (data.name.endsWith(".memo")) {
-			
-			console.log("The Memo File")
+		// 2. try to find by file extension (e.g. .memo)
+		var fileName = data.name || ""
+		var items = fileName.split(".")
+		if (items.length >= 2) {
+			name = Screen.workers[items[1]]
 		}
-		
-		name = "Memo"
 	}
 	
 	if (name == null) {
@@ -425,8 +431,14 @@ Screen.createWindow = function(text) {
 							", 0 0 4rem rgba(255, 255, 255, .8)"
 	detail.element.style.color     = "#333"
 	detail.element.style.display   = "none"
-	detail.element.style.overflow  = "auto"
-
+	
+	detail.element.style.overflow  = "hidden"
+	/*
+	detail.element.style.scrollbarColor =   "rgba(  0,  0,  0, 0.5) " +
+											"rgba(255,255,255, 0.1)"
+	detail.element.style.scrollbarWidth = "thin"
+	*/
+	
 	var size = Screen.getSize()
 	
 	if (Screen.defaultWidth  > size.width  - 32) {
@@ -493,7 +505,14 @@ Screen.createWindow = function(text) {
 	container.classList.add("container")
 	container.style.background = "rgba(255, 255, 255, .9)"
 	container.style.minHeight = "calc(100% - 3.55rem)"
+	container.style.height = "calc(100% - 3.555rem)"
 	container.style.padding = ".75rem"
+	container.style.overflow  = "auto"
+	
+	container.style.scrollbarColor =   "rgba(  0,  0,  0, 0.5) " +
+											"rgba(255,255,255, 0.1)"
+	container.style.scrollbarWidth = "thin"
+	
 	detail.element.appendChild(container)
 
 	Screen.windows.push(detail)
@@ -981,4 +1000,16 @@ Icon.resizeIcon = "data:image/svg+xml," +
 			stroke-width="2" stroke-linecap="round" 
 			stroke-linejoin="round">
 			<path d="M7 7l9.2 9.2M17 7v10H7" />
+		</svg>`)
+
+Icon.drawingIcon = "data:image/svg+xml," + 
+		encodeURIComponent(
+		`<svg xmlns="http://www.w3.org/2000/svg" 
+			width="24" height="24" 
+			viewBox="0 0 24 24" fill="none" stroke="#888" 
+			stroke-width="2" stroke-linecap="round" 
+			stroke-linejoin="round">
+			<path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 
+				2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
+			<polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
 		</svg>`)

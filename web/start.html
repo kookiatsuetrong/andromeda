@@ -54,18 +54,22 @@
 			Screen.registerApp("Empty",        createEmptyApp    )
 			Screen.registerApp("Photo Viewer", createPhotoViewer )
 			Screen.registerApp("Currency",     createCurrency    )
-			Screen.registerApp("Sample",       createSampleApp   )
+			// Screen.registerApp("Sample",    createSampleApp   )
 			Screen.registerApp("Text Editor",  e => createTextEditor(e) )
 			Screen.registerApp("Memo",         e => createMemoApp(e)    )
 
-			Screen.associate("Text Editor",  "text/plain")
-			Screen.associate("Photo Viewer", "image/jpg" )
-			Screen.associate("Photo Viewer", "image/jpeg")
-			Screen.associate("Photo Viewer", "image/png" )
+			Screen.setDataType("Text Editor",  "text/plain")
+			Screen.setDataType("Photo Viewer", "image/jpg" )
+			Screen.setDataType("Photo Viewer", "image/jpeg")
+			Screen.setDataType("Photo Viewer", "image/png" )
+			
+			Screen.setExtension("Text Editor", "js")
+			Screen.setExtension("Memo",        "memo")
 			
 			Screen.setIcon("Text Editor",  Icon.documentIcon)
 			Screen.setIcon("Photo Viewer", Icon.photoIcon)
 			Screen.setIcon("Currency",     Icon.signalIcon)
+			Screen.setIcon("Memo",         Icon.drawingIcon)
 			
 		})
 		
@@ -274,7 +278,8 @@
 				var link = document.createElement("a")
 				link.download = "sample.memo"
 				
-				var data = "data:text/plain;charset=utf-8,"
+				// var data = "data:text/plain;charset=utf-8,"
+				var data = "data:application/memo;charset=utf-8,"
 				data += JSON.stringify(detail)
 				link.href = data
 				link.click()
@@ -447,7 +452,7 @@
 							margin-left: 4rem;
 						}
 					`
-		
+
 			Screen.addStyle(css)
 			
 			var items = ["BTC-USD", "ETH-USD", "XAU-USD",
