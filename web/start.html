@@ -162,6 +162,9 @@
 						}
 					}
 				}
+				
+				canvas.addEventListener("contextmenu", 
+											e => e.preventDefault() )
 
 				canvas.addEventListener("pointerdown", 
 					function handleStart(event) {
