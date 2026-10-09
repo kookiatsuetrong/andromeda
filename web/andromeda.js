@@ -508,11 +508,11 @@ Screen.createWindow = function(text) {
 	container.style.height = "calc(100% - 3.555rem)"
 	container.style.padding = ".75rem"
 	container.style.overflow  = "auto"
-	
+	/*
 	container.style.scrollbarColor =   "rgba(  0,  0,  0, 0.5) " +
-											"rgba(255,255,255, 0.1)"
+										"rgba(255,255,255, 0.1)"
 	container.style.scrollbarWidth = "thin"
-	
+	*/
 	detail.element.appendChild(container)
 
 	Screen.windows.push(detail)

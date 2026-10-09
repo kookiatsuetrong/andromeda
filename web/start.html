@@ -51,10 +51,10 @@
 	
 	<script>
 		window.addEventListener("load", e => {
-			Screen.registerApp("Empty",        createEmptyApp    )
+			// Screen.registerApp("Empty",     createEmptyApp    )
 			Screen.registerApp("Photo Viewer", createPhotoViewer )
 			Screen.registerApp("Currency",     createCurrency    )
-			// Screen.registerApp("Sample",    createSampleApp   )
+			Screen.registerApp("Sample",       createSampleApp   )
 			Screen.registerApp("Text Editor",  e => createTextEditor(e) )
 			Screen.registerApp("Memo",         e => createMemoApp(e)    )
 
