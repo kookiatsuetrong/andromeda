@@ -74,7 +74,7 @@
 			var originalFileName = null
 			
 			main.color = "rgba(10%, 10%, 99%, .75)"
-			main.color = "rgba(10%, 70%, 50%, .75)"
+			main.color = "rgba(10%, 70%, 50%, .90)"
 			
 			main.createTextArea = function() {
 				var editor = document.createElement("textarea")
@@ -176,10 +176,7 @@
 							// canvas.setPointerCapture(event.pointerId)
 							// var bound = canvas.getBoundingClientRect()
 
-							if (event.pressure >= 0.05) {
-								var width = 3.25 * event.pressure
-								if (width <= 1) width = 1
-
+							if (event.pressure >= 0.01) {
 								var p = { }
 								p.x = event.offsetX
 								p.y = event.offsetY
@@ -197,7 +194,7 @@
 							event.preventDefault()
 							// var bound = canvas.getBoundingClientRect()
 
-							if (event.pressure > 0.05) {
+							if (event.pressure > 0.01) {
 								var p = { }
 								p.x = event.offsetX
 								p.y = event.offsetY
@@ -208,7 +205,7 @@
 									ctx.beginPath()
 									ctx.moveTo(last.x, last.y)
 									ctx.lineTo(p.x, p.y)
-									ctx.lineWidth = 4.0 * event.pressure
+									ctx.lineWidth = 4 * event.pressure
 									ctx.strokeStyle = main.color
 									ctx.stroke()
 								}
@@ -216,7 +213,7 @@
 						}
 					})
 				
-				canvas.addEventListener("pointerup",  
+				canvas.addEventListener("pointerup", 
 					function handleFinish(event) {
 
 						// event.preventDefault()
@@ -228,11 +225,11 @@
 
 							if (points.length == 1) {
 								var p = points[0]
-								var width = 2.75
+								var width = 2.0
 								ctx.beginPath()
 								ctx.arc(p.x, p.y, width, 0, 2 * Math.PI)
 								ctx.fillStyle = main.color
-								ctx.fill()
+								// ctx.fill()
 							}
 							points = [ ]
 						}
@@ -340,6 +337,7 @@
 			editor.style.resize     = "none"
 			editor.style.width      = "calc(100% - 1.50rem)"
 			editor.style.height     = "calc(100% - 3.50rem)"
+			editor.style.opacity    = 0.95
 			editor.style.lineHeight = "1.5rem"
 			editor.style.fontSize   = "1rem"
 			editor.style.fontFamily = "roboto-mono, sarabun, monospace"
