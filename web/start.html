@@ -71,6 +71,13 @@
 			Screen.setIcon("Currency",     Icon.signalIcon)
 			Screen.setIcon("Memo",         Icon.drawingIcon)
 			
+			Storage.insert( { path: "/home/user-1234/test.txt",
+								content: "Hello World!"
+							})
+							
+			var items = Storage.search()
+			console.log(items)
+			
 		})
 		
 		function createMemoApp(file) {

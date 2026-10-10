@@ -43,10 +43,19 @@ Screen.addElement(pane, element)
 Screen.addStyle(css)
 Screen.addMenu(pane, text, f)
 
+Screen.setBackground(photo)
+Screen.setCurtain(photo)
 
 
+Storage.list()
+Storage.save()
+Storage.read()
+Storage.find()
 
-
+Storage.insert()
+Storage.update()
+Storage.delete()
+       .search()
 
 
 
