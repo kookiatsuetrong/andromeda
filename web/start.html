@@ -90,27 +90,29 @@
 			main.createTextArea = function() {
 				var editor = document.createElement("textarea")
 				editor.style.display      = "block"
-				editor.style.padding      = ".75rem"
+				editor.style.padding      = "1.25rem 1.25rem .75rem 1.25rem"
 				editor.style.margin       = "0 auto"
 				editor.style.marginBottom = ".5rem"
 				editor.style.border       = "none"
-				editor.style.boxShadow    = "0 0 .1rem #999"
+				editor.style.boxShadow    = "0 0 .1rem #bbb"
 				
 				editor.style.resize       = "none"
 				editor.style.overflow     = "hidden"
 				// editor.style.width     = "calc(100% - 1.50rem)"
 				editor.style.width        = "458px"
-				editor.style.height       = "2rem"
+				editor.style.minHeight    = "3.5rem"
 				editor.style.lineHeight   = "1.5rem"
+				editor.style.color        = "#333"
 				editor.style.fontSize     = "1rem"
 				editor.style.fontFamily   = "roboto-mono, sarabun, monospace"
 				editor.style.borderRadius = ".5rem"
+				editor.style.tabSize = 4
 
 				editor.spellcheck = false
 				editor.autofocus = true
 				editor.focus()
 				editor.placeholder = "Text"
-				
+			
 				Screen.addElement(main, editor)
 				
 				editor.addEventListener("keyup", e => {
@@ -122,6 +124,15 @@
 					editor.style.height = h + "px"
 				})
 				
+				editor.addEventListener("keydown", e => {
+					if (e.key == "Tab") {
+						e.preventDefault()
+						editor.setRangeText("\t", 
+							editor.selectionStart, 
+							editor.selectionEnd, "end")
+					}
+				})
+
 				return editor
 			}
 			
@@ -353,6 +364,7 @@
 			editor.style.width      = "calc(100% - 1.50rem)"
 			editor.style.height     = "calc(100% - 3.50rem)"
 			editor.style.opacity    = 0.95
+			editor.style.color      = "#333"
 			editor.style.lineHeight = "1.5rem"
 			editor.style.fontSize   = "1rem"
 			editor.style.fontFamily = "roboto-mono, sarabun, monospace"
