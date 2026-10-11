@@ -99,7 +99,7 @@
 				editor.style.resize       = "none"
 				editor.style.overflow     = "hidden"
 				// editor.style.width     = "calc(100% - 1.50rem)"
-				editor.style.width        = "27rem"
+				editor.style.width        = "26.5rem"
 				editor.style.minHeight    = "3.5rem"
 				editor.style.lineHeight   = "1.5rem"
 				editor.style.color        = "#333"
@@ -218,21 +218,37 @@
 						if (event.pointerType == "pen") {
 							event.preventDefault()
 							// var bound = canvas.getBoundingClientRect()
-
-							if (event.pressure > 0.01) {
+							// console.log(event)
+							
+							if (event.pressure > 0.0001) {
 								var p = { }
 								p.x = event.offsetX
 								p.y = event.offsetY
 								points.push(p)
+								var pressure = event.pressure
+								var w = pressure
+								if (pressure >= 0.0001) w = 6.0 * pressure
+								if (pressure >= 0.05)   w = 5.0 * pressure
+								if (pressure >= 0.10)   w = 4.0 * pressure
+								if (pressure >= 0.25)   w = 3.0 * pressure
+								if (pressure >= 0.50)   w = 2.5 * pressure
+								if (pressure >= 0.75)   w = 2.0 * pressure
 
 								if (points.length > 1) {
 									var last = points[points.length - 2]
 									ctx.beginPath()
+									
 									ctx.moveTo(last.x, last.y)
 									ctx.lineTo(p.x, p.y)
-									ctx.lineWidth = 4 * event.pressure
+									ctx.lineWidth = w
 									ctx.strokeStyle = main.color
 									ctx.stroke()
+									
+									/*
+									ctx.fillStyle = main.color
+									ctx.fillRect(p.x, p.y, w, w)
+									ctx.fill()
+									*/
 								}
 							}
 						}
