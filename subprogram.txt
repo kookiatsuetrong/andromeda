@@ -12,8 +12,9 @@ Screen.startAppByDataType(mime, data)
 Screen.setIcon(name, icon)
 Screen.getActiveWindow()
 
-Screen.createDialog(text)
 Screen.createWindow(text)
+Screen.createDialog(text)
+Screen.createInputDialog(text)
 
 Screen.startMouseResizeWindow(event, pane)
 add    continueMouseResizeWindow(event)
@@ -43,8 +44,8 @@ Screen.addElement(pane, element)
 Screen.addStyle(css)
 Screen.addMenu(pane, text, f)
 
-Screen.setBackground(photo)
-Screen.setCurtain(photo)
+add Screen.setBackground(photo)
+add Screen.setCurtain(photo)
 
 
 Storage.list()
@@ -52,10 +53,9 @@ Storage.save()
 Storage.read()
 Storage.find()
 
+Storage.create()
 Storage.insert()
 Storage.update()
 Storage.delete()
        .search()
-
-
 
