@@ -519,7 +519,7 @@ App.createTextEditor = async function(file) {
 	editor.style.fontFamily = "roboto-mono, sarabun, monospace"
 
 	editor.spellcheck = false
-	editor.focus()
+	setTimeout(e => editor.focus(), 200)
 
 	editor.style.tabSize = 4
 	editor.addEventListener("keydown", e => {

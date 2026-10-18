@@ -114,7 +114,7 @@ Screen.start = function() {
 		}
 
 		.window .bar img:hover {
-			background: #ddd;
+			background: rgba(0, 0, 0, .25);
 			cursor: pointer;
 		}
 		.launcher img {
@@ -290,11 +290,8 @@ Screen.setAppIcon = function(name, icon) {
 	}
 	
 	// replace icon the launcher
-	
 	var selector = ".launcher [data-app-name='" + name + "']"
 	var element = document.querySelector(selector)
-	console.log("element")
-	console.log(element)
 
 	if (element == null) return
 
@@ -701,9 +698,7 @@ Screen.createLauncher = function() {
 	panel.element.style.opacity = 0
 	panel.element.style.display = "block"
 	panel.element.style.transition = "opacity .2s linear"
-	setTimeout( e => {
-		panel.element.style.opacity = 1
-	}, 200)
+	setTimeout( e => panel.element.style.opacity = 1, 200)
 	
 	window.addEventListener("resize", e => {
 		var size = Screen.getSize()
