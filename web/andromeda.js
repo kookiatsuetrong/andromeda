@@ -14,6 +14,9 @@ Screen.workers = { }
 Screen.windows = [ ]
 Screen.windowNumber = 0
 
+Screen.defaultWidth  = 600
+Screen.defaultHeight = 400
+
 Screen.getSize = function() {
 	var result    = { }
 	result.width  = window.innerWidth
@@ -187,10 +190,33 @@ Screen.setExtension = function(name, extension) {
 	Screen.workers[extension] = name
 }
 
-Screen.defaultWidth  = 600
-Screen.defaultHeight = 400
-
 Screen.registerApp = function(name, f) {
+	// searching the app by name (using name as identifier)
+	var found = -1
+	for (var i = 0; i < Screen.apps.length; i++) {
+		if (name == Screen.apps[i].name) {
+			found = i
+		}
+	}
+
+	if (found == -1) {
+		// create a new app
+		var detail = { }
+		detail.name = name
+		detail.start = f
+		detail.icon = Icon.appIcon
+		Screen.apps.push(detail)
+	}
+
+	if (found >= 0) {
+		// replace the existing app
+		var detail = Screen.apps[found]
+		detail.name = name
+		detail.start = f
+		Screen.apps[found] = detail
+	}
+
+	return
 
 	// find the launcher
 	var index = -1
@@ -218,7 +244,7 @@ Screen.registerApp = function(name, f) {
 
 		var bar = Screen.windows[index].element.
 						querySelector(".launcher")
-		bar.appendChild(element)
+		// bar.appendChild(element)
 
 		// searching the app by name (using name as identifier)
 		var found = -1
@@ -245,6 +271,86 @@ Screen.registerApp = function(name, f) {
 			Screen.apps[found] = detail
 		}
 	}
+}
+
+Screen.setAppIcon = function(name, icon) {
+	// searching the app by name (using name as identifier)
+	var found = -1
+	for (var i = 0; i < Screen.apps.length; i++) {
+		if (name == Screen.apps[i].name) {
+			found = i
+		}
+	}
+
+	if (found >= 0) {
+		// replace the existing app
+		var detail = Screen.apps[found]
+		detail.icon = icon
+		Screen.apps[found] = detail
+	}
+	
+	// replace icon the launcher
+	
+	var selector = ".launcher [data-app-name='" + name + "']"
+	var element = document.querySelector(selector)
+	console.log("element")
+	console.log(element)
+
+	if (element == null) return
+
+	var current = element.querySelector("img")
+	element.removeChild(current)
+
+	var item = document.createElement("img")
+	item.src = icon
+	element.appendChild(item)
+}
+
+Screen.displayAppIcon = function(name) {
+
+	// find the launcher
+	var index = -1
+	for (var i = 0; i < Screen.windows.length; i++) {
+		if (Screen.windows[i].text == "Launcher") {
+			index = i
+		}
+	}
+	
+	if (index < 0) return
+	
+	var found = -1
+	for (var i = 0; i < Screen.apps.length; i++) {
+		if (Screen.apps[i].name == name) {
+			found = i
+		}
+	}
+	
+	if (found < 0) return
+
+	var icon = document.createElement("img")
+	icon.src = Screen.apps[found].icon
+
+	var element = document.createElement("button")
+	element.style.border       = "none"
+	element.style.background   = "white"
+	element.style.borderRadius = ".5rem"
+	element.style.margin       = ".5rem .25rem"
+	element.style.padding      = "0"
+	element.style.width        = "2.5rem"
+	element.style.height       = "2.5rem"
+	element.setAttribute("data-app-name", name)
+	element.appendChild(icon)
+	element.addEventListener("click", e => {
+		for (var i = 0; i < Screen.apps.length; i++) {
+			if (Screen.apps[i].name == name) {
+				Screen.apps[i].start(e)
+			}
+		}
+	})
+
+	var launcher = Screen.windows[index].element.
+					querySelector(".launcher")
+	launcher.appendChild(element)
 }
 
 Screen.startAppByDataType = function(mime, data) {
@@ -284,30 +390,6 @@ Screen.startAppByDataType = function(mime, data) {
 	Screen.apps[found].start(data)
 }
 
-Screen.setIcon = function(name, icon) {
-	
-	// find the launcher
-	var index = -1
-	for (var i = 0; i < Screen.windows.length; i++) {
-		if (Screen.windows[i].text == "Launcher") {
-			index = i
-		}
-	}
-	
-	if (index >= 0) {
-		var bar = Screen.windows[index].element.
-						querySelector(".launcher")
-		var element = bar.querySelector("[data-app-name='" + name + "']")
-		
-		var current = element.querySelector("img")
-		element.removeChild(current)
-		
-		var item = document.createElement("img")
-		item.src = icon
-		element.appendChild(item)
-	}
-}
-
 Screen.getActiveWindow = function() {
 	var m = 0
 	for (var i = 0; i < Screen.windows.length; i++) {
@@ -317,7 +399,6 @@ Screen.getActiveWindow = function() {
 	}
 	return m
 }
-
 
 Screen.startMouseResizeWindow = function(event, pane) {
 	var bound = pane.element.getBoundingClientRect()

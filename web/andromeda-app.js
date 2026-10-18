@@ -11,14 +11,20 @@ App.createFileManager = async function () {
 
 			var name = document.createElement("span")
 			name.style.fontFamily = "roboto-mono, monospace"
+			var parts = fileNameItems[3].split("\.")
 			name.innerHTML = fileNameItems[3]
 
 			var open = document.createElement("a")
 			open.style.marginRight = "1rem"
 			// open.href = ""
 			open.innerHTML = "Open"
-			open.addEventListener("click", async event => {					
-				await App.createTextEditor(file.number)
+			open.addEventListener("click", async event => {
+				if (parts[1] == "txt") {
+					await App.createTextEditor(file.number)
+				}
+				if (parts[1] == "memo") {
+					await App.createMemoApp(file.number)
+				}
 			})
 
 			var line = document.createElement("section")
@@ -73,7 +79,7 @@ App.createFileManager = async function () {
 
 }
 
-App.createMemoApp = function(file) {
+App.createMemoApp = async function(file) {
 	var main = Screen.createWindow("Memo")
 	var originalFileName = null
 
@@ -175,8 +181,8 @@ App.createMemoApp = function(file) {
 			}
 		}
 
-		canvas.addEventListener("contextmenu", 
-									e => e.preventDefault() )
+		canvas.addEventListener
+					("contextmenu", e => e.preventDefault() )
 
 		canvas.THRESHOLD = 0.1
 
@@ -215,7 +221,6 @@ App.createMemoApp = function(file) {
 					event.preventDefault()
 					// var bound = canvas.getBoundingClientRect()
 					// console.log(event)
-
 					
 					if (event.pressure >= canvas.THRESHOLD) {
 						var p = { }
@@ -251,7 +256,7 @@ App.createMemoApp = function(file) {
 
 							ctx.beginPath()
 							ctx.arc(last.x, last.y, 
-								w / 2 - .5, 0, 2 * Math.PI)
+								w / 2 - 0.5, 0, 2 * Math.PI)
 							ctx.fillStyle = main.color
 							ctx.fill()
 
@@ -313,18 +318,18 @@ App.createMemoApp = function(file) {
 
 		return canvas
 	}
-
-	Screen.addMenu(main, "Download", e => {
+	
+	main.prepareContent = function() {
 		var content = main.element.querySelectorAll(".container > *")
 		// console.log(content)
-		var buffer = ""
-		var detail = {}
+		var xml = ""              // for XML
+		var detail = {}           // for JSON
 		detail.data = [ ]
 		for (var c of content) {
 			if (c.tagName == "TEXTAREA") {
-				buffer += "<text>\n"
-				buffer += c.value + "\n"
-				buffer += "</text>\n"
+				xml += "<text>\n"
+				xml += c.value + "\n"
+				xml += "</text>\n"
 
 				var text = { }
 				text.type = "text"
@@ -332,9 +337,9 @@ App.createMemoApp = function(file) {
 				detail.data.push(text)
 			}
 			if (c.tagName == "CANVAS") {
-				buffer += "<photo>\n"
-				buffer += c.toDataURL("image/png") + "\n"
-				buffer += "</photo>\n"
+				xml += "<photo>\n"
+				xml += c.toDataURL("image/png") + "\n"
+				xml += "</photo>\n"
 
 				var item = { }
 				item.type = "photo"
@@ -342,55 +347,152 @@ App.createMemoApp = function(file) {
 				detail.data.push(item)
 			}
 		}
+		// console.log(detail.data)
+		
+		var readable = { }
+		readable.data = [ ]
+		for (var d of detail.data) {
+			var element = { }
+			element.type = d.type
+			element.data = d.data
+			if (d.type == "photo") {
+				element.data = [ ]
+				var size = 60
+				var start = 0
+				while (true) {
+					var buffer = d.data.substring( start, start + size )
+					if (buffer == "") break
+					element.data.push(buffer)
+					start += size
+				}
+			}
+			readable.data.push(element)
+		}
+		// console.log(readable)
+		
+		var buffer = ""
+		buffer += '{"data": [\n'
+		for (var d of readable.data) {
+			buffer += "{\n"
+			buffer += '"type": "' + d.type + '",\n'
+			if (d.type == "text") {
+				buffer += '"data": "' + d.data + '"'
+			}
+			if (d.type == "photo") {
+				buffer += '"data": [\n'
 
+				for (var e of d.data) {
+					buffer += '"' + e + '",\n'
+				}
+				buffer += '""]\n'
+			}
+			
+			buffer += "},\n"
+		}
+		buffer += "{}\n"
+		buffer += "]\n"
+		buffer += "}\n"
+		
+		return buffer
+	}
+
+	Screen.addMenu(main, "Download", e => {
+		var buffer = main.prepareContent()
 		var link = document.createElement("a")
 		link.download = "sample.memo"
 
-		// var data = "data:text/plain;charset=utf-8,"
 		var data = "data:application/memo;charset=utf-8,"
-		data += JSON.stringify(detail)
+		data += buffer
 		link.href = data
 		link.click()
+	})
+	
+	Screen.addMenu(main, "Save", async e => {
+		var data = { }
+		data.number = fileNumber
+		data.text = main.prepareContent()
+		console.log(data)
+
+		var location = "/service-data-update"
+		var payload = { }
+		payload.method = "POST"
+		payload.headers = { }
+		payload.headers["Content-Type"] = "application/json"
+		payload.body = JSON.stringify(data)
+
+		var response = await fetch(location, payload)
+		var detail   = await response.text()
+
+		console.log(detail)
 	})
 
 	Screen.addMenu(main, "Text", e => {
 		main.createTextArea()
 	})
 
-	Screen.addMenu(main, "Drawing", e => {
+	Screen.addMenu(main, "Canvas", e => {
 		main.createCanvas(true)
 	})
+	
+	main.display = function(detail) {
+		if (detail.data == null) {
+			detail.data = []
+		}
+		detail.data.forEach( e => {
+
+			if (e.type == "text") {
+				var t = main.createTextArea()
+				t.value = e.data
+				console.log("TEXT " + e.data)
+			}
+
+			if (e.type == "photo") {
+				e.image = ""
+				for (var line of e.data) {
+					e.image += line
+				}
+				var c = main.createCanvas()
+				var image = document.createElement("img")
+				image.onload = function() {
+					var ctx = c.getContext("2d")
+					ctx.drawImage(image, 0, 0, 
+							image.width, image.height)
+				}
+				image.src = e.image
+			}
+
+		})
+
+	}
+	
+	var originalFileName = ""     // for local file name
+	var fileNumber = 0            // for server file number
 
 	if (file instanceof File) {
 		originalFileName = file.name
 		var reader = new FileReader()
 		reader.onload = function() {
 			var buffer = reader.result
-			var detail = JSON.parse(buffer)
-			// for (var e of detail.data) { }
-
-			detail.data.forEach( e => {
-
-				if (e.type == "text") {
-					var t = main.createTextArea()
-					t.value = e.data
-				}
-
-				if (e.type == "photo") {
-					var c = main.createCanvas()
-					var image = document.createElement("img")
-					image.onload = function() {
-						var ctx = c.getContext("2d")
-						ctx.drawImage(image, 0, 0, 
-								image.width, image.height)
-					}
-					image.src = e.data							
-				}
-
-			})
-
+			if (buffer == null) {
+				buffer = "{}"
+			}
+			main.display(JSON.parse(buffer))
 		}
 		reader.readAsText(file)
+	}
+	
+	if (typeof file == "number") {
+		fileNumber = file
+		var location = "/service-data-read?number=" + fileNumber
+		var response = await fetch(location)
+		var detail   = await response.json()
+		console.log(detail)
+		var buffer = detail.data[0].text
+		
+		if (buffer == null || buffer == "") {
+			buffer = "{}"
+		}
+		main.display(JSON.parse(buffer))
 	}
 }
 
@@ -447,11 +549,10 @@ App.createTextEditor = async function(file) {
 		var location = "/service-data-read?number=" + fileNumber
 		var response = await fetch(location)
 		var detail   = await response.json()
-		console.log(detail)
-		if (detail.data[0].content == null) {
-			detail.data[0].content = ""
+		if (detail.data[0].text == null) {
+			detail.data[0].text = ""
 		}
-		editor.value = detail.data[0].content
+		editor.value = detail.data[0].text
 	}
 
 	Screen.addMenu(main, "Download", e => {
@@ -484,7 +585,6 @@ App.createTextEditor = async function(file) {
 		var detail   = await response.text()
 
 		console.log(detail)
-
 	})
 
 	main.element.appendChild(editor)

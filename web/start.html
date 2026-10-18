@@ -68,28 +68,33 @@
 			
 			window.user = detail
 			
-			// Screen.registerApp("Empty",     createEmptyApp    )
-			// Screen.registerApp("Sample",    createSampleApp   )
-			
+			Screen.registerApp("Empty",        createEmptyApp    )
+			Screen.registerApp("Sample",       createSampleApp   )
 			Screen.registerApp("Photo Viewer", createPhotoViewer )
+			
 			Screen.registerApp("Currency",     createCurrency    )
 			Screen.registerApp("Text Editor",  e => App.createTextEditor(e) )
 			Screen.registerApp("Memo",         e => App.createMemoApp(e)    )
 			Screen.registerApp("File Manager", App.createFileManager )
-
-			Screen.setDataType("Text Editor",  "text/plain")
+			
+			Screen.displayAppIcon("Text Editor")
+			Screen.displayAppIcon("Currency")
+			Screen.displayAppIcon("Memo")
+			Screen.displayAppIcon("File Manager")
+			
+			Screen.setAppIcon("Text Editor",  Icon.documentIcon)
+			Screen.setAppIcon("Currency",     Icon.signalIcon)
+			Screen.setAppIcon("Memo",         Icon.drawingIcon)
+			Screen.setAppIcon("File Manager", Icon.folderIcon)
+			
 			Screen.setDataType("Photo Viewer", "image/jpg" )
 			Screen.setDataType("Photo Viewer", "image/jpeg")
 			Screen.setDataType("Photo Viewer", "image/png" )
+			Screen.setDataType("Text Editor",  "text/plain")
 			
 			Screen.setExtension("Text Editor", "js")
 			Screen.setExtension("Memo",        "memo")
-			
-			Screen.setIcon("Text Editor",  Icon.documentIcon)
-			Screen.setIcon("Photo Viewer", Icon.photoIcon)
-			Screen.setIcon("Currency",     Icon.signalIcon)
-			Screen.setIcon("Memo",         Icon.drawingIcon)
-			Screen.setIcon("File Manager", Icon.folderIcon)	
+			Screen.setDataType("Photo Viewer", "bmp")
 		})
 		
 		function createEmptyApp() {
@@ -100,7 +105,7 @@
 			var viewer = Screen.createWindow("Photo Viewer")
 			var container = viewer.element.querySelector(".container")
 			container.style.padding = 0
-			container.style.height = "calc(100% - 2rem)"
+			container.style.height = "calc(100% - 1.75rem)"
 
 			var image = document.createElement("img")
 			image.style.display = "block"

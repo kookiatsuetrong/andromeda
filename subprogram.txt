@@ -1,37 +1,44 @@
 
 Screen.getSize()					Get the web browser size.
 Screen.start()						Start the system.
-Screen.associate(name, mime)		Create file association.
 
-Screen.defaultWidth  = 600
-Screen.defaultHeight = 400
+Screen.defaultWidth  = 600			Default width of window
+Screen.defaultHeight = 400			Default height of window
 
-Screen.registerApp(name, f)
+Screen.registerApp(name, f)			Register app name and function
+'-- This subprogram will register the app name and starting subprogram.
+'-- This subprogram should not show the icon to the launcher
+
+Screen.setAppIcon(name, icon)		Set icon of the app
+
+Screen.setExtension(name, extension)
+Screen.setDataType(name, mime)		Create file association for app.
+
+Screen.displayAppIcon(name)			Add app to launcher
 
 Screen.startAppByDataType(mime, data)
-Screen.setIcon(name, icon)
-Screen.getActiveWindow()
 
 Screen.createWindow(text)
 Screen.createDialog(text)
 Screen.createInputDialog(text)
 
 Screen.startMouseResizeWindow(event, pane)
-add    continueMouseResizeWindow(event)
-add    finishMouseResizeWindow(event)
+TODO   continueMouseResizeWindow(event)
+TODO   finishMouseResizeWindow(event)
 
 Screen.startMouseMoveWindow(event, pane)
 Screen.continueMouseMoveWindow(event)
 Screen.finishMouseMoveWindow(event)
 
 Screen.startFingerResizeWindow(event, pane)
-add    continueFingerResizeWindow(event)
-add    finishFingerResizeWindow(event)
+TODO   continueFingerResizeWindow(event)
+TODO   finishFingerResizeWindow(event)
 
 Screen.startFingerMoveWindow(event, pane)
 Screen.continueFingerMoveWindow(event)
 Screen.finishFingerMoveWindow(event)
 
+Screen.getActiveWindow()
 Screen.removeWindow(pane)
 Screen.activateWindow(pane)
 Screen.enlargeWindow(pane)
@@ -41,11 +48,12 @@ Screen.centerWindow(pane)
 Screen.createLauncher()
 
 Screen.addElement(pane, element)
+Screen.clearElement(pane)
 Screen.addStyle(css)
 Screen.addMenu(pane, text, f)
 
-add Screen.setBackground(photo)
-add Screen.setCurtain(photo)
+TODO   Screen.setBackground(photo)
+TODO   Screen.setCurtain(photo)
 
 
 Storage.list()

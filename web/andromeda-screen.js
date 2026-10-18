@@ -1,3 +1,4 @@
+
 Screen.createInputDialog = function(text) {
 	Screen.windowNumber++
 	var page = { }
@@ -213,8 +214,8 @@ Screen.createWindow = function(text) {
 	detail.element.style.position   = "absolute"
 	detail.element.style.background = "none"
 	detail.element.style.borderRadius = "1.5rem"
-	detail.element.style.border = ".5rem solid rgba(0, 0, 0, .05)"
-	detail.element.style.boxShadow = "0 0 .1rem rgba(0,0,0,.25)" +
+	detail.element.style.border = ".5rem solid rgba(0, 0, 0, .001)"
+	detail.element.style.boxShadow = "0 0 .1rem rgba(0,0,0, .2)" +
 							", 0 0 4rem rgba(255, 255, 255, .8)"
 	detail.element.style.color     = "#333"
 	detail.element.style.display   = "none"
@@ -250,9 +251,11 @@ Screen.createWindow = function(text) {
 	
 	var bar = document.createElement("section")
 	bar.classList.add("bar")
-	bar.style.background = "rgba(255, 255, 255, .80)"
-	bar.style.padding = ".25rem 0 .5rem .6rem"
-	bar.style.margin = "0"
+	bar.style.backdropFilter = "blur(2px)"
+	bar.style.background = "rgba(255, 255, 255, .40)"
+	// bar.style.background = "rgba(255, 255, 255, 1)"
+	bar.style.padding = ".275rem 0 .475rem .6rem"
+	bar.style.margin = "0 0 -0.1rem 0"
 	bar.style.fontSize = "1.1rem"
 	bar.innerText = text
 	detail.element.appendChild(bar)
@@ -263,7 +266,7 @@ Screen.createWindow = function(text) {
 	closeButton.addEventListener("touchend", 
 								e => Screen.removeWindow(detail))
 	closeButton.src = Icon.closeIcon
-	closeButton.style.margin = "-.1rem .5rem 0 1rem"
+	closeButton.style.margin = "-0.1rem .5rem 0 1rem"
 	closeButton.style.float  = "right"
 	bar.appendChild(closeButton)
 
@@ -274,7 +277,7 @@ Screen.createWindow = function(text) {
 								e => Screen.enlargeWindow(detail))
 								
 	maximizeButton.src = Icon.enlargeIcon
-	maximizeButton.style.margin = "-.1rem 0 0 1rem"
+	maximizeButton.style.margin = "-0.1rem 0 0 1rem"
 	maximizeButton.style.float  = "right"
 	bar.appendChild(maximizeButton)
 
@@ -284,15 +287,16 @@ Screen.createWindow = function(text) {
 	restoreButton.addEventListener("touchend", 
 								e => Screen.restoreWindow(detail))
 	restoreButton.src = Icon.restoreIcon
-	restoreButton.style.margin = "-.1rem 0 0 1rem"
+	restoreButton.style.margin = "-0.1rem 0 0 1rem"
 	restoreButton.style.float  = "right"
 	bar.appendChild(restoreButton)
 	
 	var container = document.createElement("section")
 	container.classList.add("container")
-	container.style.background = "rgba(255, 255, 255, .9)"
-	container.style.minHeight = "calc(100% - 3.55rem)"
-	container.style.height = "calc(100% - 3.555rem)"
+	// container.style.background = "rgba(255, 255, 255, .9)"
+	container.style.background = "rgba(255, 255, 255, 1)"
+	// container.style.minHeight  = "calc(100% - 3.0rem)"
+	container.style.height     = "calc(100% - 3.25rem)"
 	container.style.padding = ".75rem"
 	container.style.overflow  = "auto"
 	/*
@@ -329,3 +333,4 @@ Screen.createWindow = function(text) {
 	
 	return detail
 }
+
