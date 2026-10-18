@@ -6,16 +6,11 @@ Screen.defaultWidth  = 600			Default width of window
 Screen.defaultHeight = 400			Default height of window
 
 Screen.registerApp(name, f)			Register app name and function
-'-- This subprogram will register the app name and starting subprogram.
-'-- This subprogram should not show the icon to the launcher
-
 Screen.setAppIcon(name, icon)		Set icon of the app
-
-Screen.setExtension(name, extension)
-Screen.setDataType(name, mime)		Create file association for app.
-
 Screen.displayAppIcon(name)			Add app to launcher
 
+Screen.setExtension(name, type)
+Screen.setDataType(name, mime)		Create file association for app.
 Screen.startAppByDataType(mime, data)
 
 Screen.createWindow(text)
