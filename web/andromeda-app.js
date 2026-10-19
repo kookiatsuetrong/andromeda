@@ -135,14 +135,26 @@ App.createMemoApp = async function(file) {
 
 		return editor
 	}
-
+	
+	main.canvasWidth  = 960
+	main.canvasHeight = 960
+	
+	main.dotColor = "#ddd"
+	main.dotSpace = 40
+	
+	main.distance = function(p, q) {
+		var dx = p.x - q.x
+		var dy = p.y - q.y
+		return Math.sqrt( dx * dx + dy * dy )
+	}
+	
 	main.createCanvas = function(empty) {
 		var canvas = document.createElement("canvas")
-		canvas.width  = 960
-		canvas.height = 960
-
+		canvas.width  = main.canvasWidth
+		canvas.height = main.canvasHeight
 		// var bound = main.element.getBoundingClientRect()
 
+		// create the real canvas
 		canvas.style.display      = "block"
 		canvas.style.background   = "#fcfcfc"
 		canvas.style.margin       = "0 auto"
@@ -156,7 +168,7 @@ App.createMemoApp = async function(file) {
 		canvas.style.touchAction  = "none"
 		canvas.style.userSelect   = "none"
 
-		Screen.addElement(main, canvas)				
+		Screen.addElement(main, canvas)
 
 		/*
 		var resizeObserver = new ResizeObserver( e => {
@@ -171,11 +183,12 @@ App.createMemoApp = async function(file) {
 		var points = [ ]
 		var ctx = canvas.getContext("2d")
 		if (empty == true) {
-			for (var x = 40; x < canvas.width; x += 40) {
-				for (var y = 40; y < canvas.height; y += 40) {
+			var space = main.dotSpace
+			for (var x = space; x < canvas.width; x += space) {
+				for (var y = space; y < canvas.height; y += space) {
 					ctx.beginPath()
 					ctx.arc(x, y, 4, 0, 2 * Math.PI)
-					ctx.fillStyle = "rgba(0, 0, 0, 0.05)"
+					ctx.fillStyle = main.dotColor
 					ctx.fill()
 				}
 			}
@@ -227,31 +240,23 @@ App.createMemoApp = async function(file) {
 						p.x = event.offsetX * 2
 						p.y = event.offsetY * 2
 						points.push(p)
-						var pressure = event.pressure
-						var w = pressure
+						var w = event.pressure
 
-						if (pressure >= 0.0001) w = 0.00
-						if (pressure >= 0.01)   w = 0.00
-						if (pressure >= 0.10)   w = 2.25
-						if (pressure >= 0.20)   w = 2.50
-						if (pressure >= 0.30)   w = 2.75
-						if (pressure >= 0.40)   w = 3.00
-						if (pressure >= 0.50)   w = 3.25
-						if (pressure >= 0.60)   w = 3.50
-						if (pressure >= 0.70)   w = 3.75
-						if (pressure >= 0.80)   w = 4.00
-						if (pressure >= 0.90)   w = 4.25
+						if (event.pressure >= 0.0001) w = 0.00
+						if (event.pressure >= 0.01)   w = 0.00
+						if (event.pressure >= 0.10)   w = 2.00
+						if (event.pressure >= 0.20)   w = 2.25
+						if (event.pressure >= 0.30)   w = 2.50
+						if (event.pressure >= 0.40)   w = 2.75
+						if (event.pressure >= 0.50)   w = 3.00
+						if (event.pressure >= 0.60)   w = 3.25
+						if (event.pressure >= 0.70)   w = 3.50
+						if (event.pressure >= 0.80)   w = 3.75
+						if (event.pressure >= 0.90)   w = 4.00
 						w *= 1.5
 						console.log("weight " + w)
 
-						/*
-						if (pressure >= 0.10)   w = 2.25
-						if (pressure >= 0.25)   w = 2.50
-						if (pressure >= 0.50)   w = 2.75
-						if (pressure >= 0.75)   w = 3.00
-						*/
-
-						if (points.length > 1) {
+						if (main.tool == "pen" && points.length > 1) {
 							var last = points[points.length - 2]
 
 							ctx.beginPath()
@@ -267,13 +272,48 @@ App.createMemoApp = async function(file) {
 							ctx.lineWidth = w
 							ctx.strokeStyle = main.color
 							ctx.stroke()
-
-							/*
-							ctx.fillStyle = main.color
-							ctx.fillRect(p.x, p.y, w, w)
-							ctx.fill()
-							*/
 						}
+						
+						if (main.tool == "eraser" && points.length > 1) {
+							var w = 16
+							ctx.beginPath()
+							ctx.clearRect(
+									p.x - w / 2, 
+									p.y - w / 2, 
+									w, w)
+							
+							var dots = [ ]
+							
+							var fx = parseInt(p.x / main.dotSpace)
+							var fy = parseInt(p.y / main.dotSpace)
+							
+							var dx = p.x % main.dotSpace
+							var dy = p.y % main.dotSpace
+							if (dx > main.dotSpace / 2) fx++
+							if (dy > main.dotSpace / 2) fy++
+							
+							for (var x = -2; x <= 2; x++) {
+								for (var y = -2; y <= 2; y++) {
+									var q = { }
+									q.x = (fx + x) * main.dotSpace
+									q.y = (fy + y) * main.dotSpace
+									if (main.distance(p, q) < w) {
+										dots.push(q)
+									}
+								}
+							}
+							
+							for (var r of dots) {
+								if (0 < r.x && r.x < main.canvasWidth &&
+									0 < r.y && r.y < main.canvasHeight) {
+									ctx.beginPath()
+									ctx.arc(r.x, r.y, 4, 0, 2 * Math.PI)
+									ctx.fillStyle = main.dotColor
+									ctx.fill()
+								}
+							}
+						}
+						
 					}
 				}
 			})
@@ -287,7 +327,8 @@ App.createMemoApp = async function(file) {
 				if (event.pointerType == "pen") {
 					event.preventDefault()
 					// canvas.releasePointerCapture(event.pointerId)
-
+					console.log("handleFinish()")
+					
 					if (points.length == 1) {
 						var p = points[0]
 						var w = 4
@@ -300,12 +341,13 @@ App.createMemoApp = async function(file) {
 						ctx.strokeStyle = main.color
 						ctx.stroke()
 						*/
+						/*
 						ctx.beginPath()
 						ctx.arc(p.x * 2, p.y * 2, 
 								w, 0, 2 * Math.PI)
 						ctx.fillStyle = main.color
 						// ctx.fill()
-						
+						*/
 						console.log("Pointing")
 					}
 					points = [ ]
@@ -317,6 +359,24 @@ App.createMemoApp = async function(file) {
 			})
 
 		return canvas
+	}
+	
+	main.encode = function(text) {
+		var buffer = text
+		buffer = buffer.replaceAll('"',  '\\"')
+		buffer = buffer.replaceAll('\n', "\\n")
+		buffer = buffer.replaceAll('\r', "\\r")
+		buffer = buffer.replaceAll('\t', "\\t")
+		return buffer
+	}
+	
+	main.decode = function(text) {
+		var buffer = text;
+		buffer = buffer.replaceAll('\\"', '"')
+		buffer = buffer.replaceAll("\\n", '\n')
+		buffer = buffer.replaceAll("\\r", '\r')
+		buffer = buffer.replaceAll("\\t", '\t')
+		return buffer
 	}
 	
 	main.prepareContent = function() {
@@ -355,7 +415,24 @@ App.createMemoApp = async function(file) {
 			var element = { }
 			element.type = d.type
 			element.data = d.data
+			
+			if (d.type == "text") {
+				// create array of 60 characters per item
+				// var encoded = encodeURIComponent(d.data)
+				var encoded = main.encode(d.data)
+				element.data = [ ]
+				var size = 60
+				var start = 0
+				while (true) {
+					var buffer = encoded.substring( start, start + size )
+					if (buffer == "") break
+					element.data.push(buffer)
+					start += size
+				}
+			}
+			
 			if (d.type == "photo") {
+				// create array of 60 characters per item
 				element.data = [ ]
 				var size = 60
 				var start = 0
@@ -375,9 +452,15 @@ App.createMemoApp = async function(file) {
 		for (var d of readable.data) {
 			buffer += "{\n"
 			buffer += '"type": "' + d.type + '",\n'
+			
 			if (d.type == "text") {
-				buffer += '"data": "' + d.data + '"'
+				buffer += '"data": [\n'
+				for (var e of d.data) {
+					buffer += '"' + e + '",\n'
+				}
+				buffer += '""]\n'
 			}
+			
 			if (d.type == "photo") {
 				buffer += '"data": [\n'
 
@@ -425,14 +508,6 @@ App.createMemoApp = async function(file) {
 
 		console.log(detail)
 	})
-
-	Screen.addMenu(main, "Text", e => {
-		main.createTextArea()
-	})
-
-	Screen.addMenu(main, "Canvas", e => {
-		main.createCanvas(true)
-	})
 	
 	main.display = function(detail) {
 		if (detail.data == null) {
@@ -442,8 +517,12 @@ App.createMemoApp = async function(file) {
 
 			if (e.type == "text") {
 				var t = main.createTextArea()
-				t.value = e.data
-				console.log("TEXT " + e.data)
+				var buffer = ""
+				for (var s of e.data) {
+					buffer += s
+				}
+				// t.value = decodeURIComponent(buffer)
+				t.value = main.decode(buffer)
 			}
 
 			if (e.type == "photo") {
@@ -494,6 +573,29 @@ App.createMemoApp = async function(file) {
 		}
 		main.display(JSON.parse(buffer))
 	}
+	
+	Screen.addMenu(main, "Text", e => {
+		main.createTextArea()
+	})
+
+	Screen.addMenu(main, "Canvas", e => {
+		main.createCanvas(true)
+	})
+	
+	main.tool = "pen"
+	
+	Screen.addMenu(main, "Eraser", e => {
+		var current = main.tool
+		if (current == "pen") {
+			main.tool = "eraser"
+			Screen.changeMenu(main, "Eraser", "Pen")
+		}
+		if (current == "eraser") {
+			main.tool = "pen"
+			Screen.changeMenu(main, "Pen", "Eraser")
+		}
+	})
+
 }
 
 App.createTextEditor = async function(file) {
@@ -589,3 +691,4 @@ App.createTextEditor = async function(file) {
 
 	main.element.appendChild(editor)
 }
+

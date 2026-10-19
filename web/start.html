@@ -77,8 +77,8 @@
 			Screen.registerApp("Memo",         e => App.createMemoApp(e)    )
 			Screen.registerApp("File Manager", App.createFileManager )
 			
-			Screen.displayAppIcon("Text Editor")
 			Screen.displayAppIcon("Currency")
+			Screen.displayAppIcon("Text Editor")
 			Screen.displayAppIcon("Memo")
 			Screen.displayAppIcon("File Manager")
 			
@@ -138,6 +138,8 @@
 		
 		function createCurrency() {
 			var main = Screen.createWindow("Currencies")
+			main.element.style.width = "20rem"
+			Screen.centerWindow(main)
 			var container = main.element.querySelector(".container")
 			container.classList.add("cryptocurrency")
 			

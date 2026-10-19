@@ -9,9 +9,9 @@ Screen.registerApp(name, f)			Register app name and function
 Screen.setAppIcon(name, icon)		Set icon of the app
 Screen.displayAppIcon(name)			Add app to launcher
 
-Screen.setExtension(name, type)
-Screen.setDataType(name, mime)		Create file association for app.
-Screen.startAppByDataType(mime, data)
+Screen.setExtension(name, type)		Create file association for app
+Screen.setDataType(name, mime)		Create file association for app
+Screen.openFile(mime, data)			Open file
 
 Screen.createWindow(text)
 Screen.createDialog(text)

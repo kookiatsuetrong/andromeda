@@ -174,7 +174,7 @@ Screen.start = function() {
 		console.log(files)
 		
 		files.forEach( f => {
-			Screen.startAppByDataType(f.type, f)
+			Screen.openFile(f.type, f)
 		})
 
 	})
@@ -350,13 +350,13 @@ Screen.displayAppIcon = function(name) {
 	launcher.appendChild(element)
 }
 
-Screen.startAppByDataType = function(mime, data) {
+Screen.openFile = function(mime, data) {
 	
 	// 1. try to find the MIME file type (e.g. text/plain)
 	var name = Screen.workers[mime]
 	
+	// 2. try to find by file extension (e.g. .memo)
 	if (name == null) {
-		// 2. try to find by file extension (e.g. .memo)
 		var fileName = data.name || ""
 		var items = fileName.split(".")
 		if (items.length >= 2) {
@@ -742,6 +742,16 @@ Screen.addMenu = function(pane, text, f) {
 
 	var bar = pane.element.querySelector(".bar")
 	bar.appendChild(menu)
+}
+
+Screen.changeMenu = function(pane, current, value) {
+	var list = pane.element.querySelectorAll(".menu-item")
+	for (var e of list) {
+		var text = e.innerText
+		if (text == current) {
+			e.innerText = value
+		}
+	}
 }
 
 document.write("<script src='/andromeda-screen.js'></script>")
