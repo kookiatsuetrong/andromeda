@@ -139,7 +139,7 @@ App.createMemoApp = async function(file) {
 	main.canvasWidth  = 960
 	main.canvasHeight = 960
 	
-	main.dotColor = "#ddd"
+	main.dotColor = "#eee"
 	main.dotSpace = 40
 	
 	main.distance = function(p, q) {
@@ -156,7 +156,7 @@ App.createMemoApp = async function(file) {
 
 		// create the real canvas
 		canvas.style.display      = "block"
-		canvas.style.background   = "#fcfcfc"
+		canvas.style.background   = "#ffffff"
 		canvas.style.margin       = "0 auto"
 		canvas.style.marginBottom = ".5rem"
 		canvas.style.border       = "none"
@@ -254,7 +254,7 @@ App.createMemoApp = async function(file) {
 						if (event.pressure >= 0.80)   w = 3.75
 						if (event.pressure >= 0.90)   w = 4.00
 						w *= 1.5
-						console.log("weight " + w)
+						// console.log("weight " + w)
 
 						if (main.tool == "pen" && points.length > 1) {
 							var last = points[points.length - 2]
@@ -292,6 +292,13 @@ App.createMemoApp = async function(file) {
 							if (dx > main.dotSpace / 2) fx++
 							if (dy > main.dotSpace / 2) fy++
 							
+							var q = {x: fx * main.dotSpace,
+									y:  fy * main.dotSpace}
+							if (main.distance(p, q) < w) {
+								dots.push(q)
+							}
+							
+							/*
 							for (var x = -2; x <= 2; x++) {
 								for (var y = -2; y <= 2; y++) {
 									var q = { }
@@ -301,11 +308,14 @@ App.createMemoApp = async function(file) {
 										dots.push(q)
 									}
 								}
-							}
+							} */
 							
 							for (var r of dots) {
 								if (0 < r.x && r.x < main.canvasWidth &&
 									0 < r.y && r.y < main.canvasHeight) {
+									ctx.beginPath()
+									ctx.clearRect(r.x - 4, r.y - 4, 8, 8)
+									
 									ctx.beginPath()
 									ctx.arc(r.x, r.y, 4, 0, 2 * Math.PI)
 									ctx.fillStyle = main.dotColor
