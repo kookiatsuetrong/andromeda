@@ -9,9 +9,9 @@
 
 var Screen = { }
 
-Screen.apps = [ ]
-Screen.workers = { }
-Screen.windows = [ ]
+Screen.apps = [ ]			// list of apps
+Screen.workers = { }		// mapping for mime and app
+Screen.windows = [ ]		// list of opening window
 Screen.windowNumber = 0
 
 Screen.defaultWidth  = 600
@@ -28,6 +28,8 @@ Screen.start = function() {
 
 	console.log("Starting Operating System")
 
+	// 1. Handle mouse, touch, and pen events
+	
 	/*
 	window.addEventListener("touchstart", e => {
 		console.log("touchstart")
@@ -55,24 +57,7 @@ Screen.start = function() {
 	window.addEventListener("touchend", 
 				e => Screen.finishFingerMoveWindow(e))
 
-	var fonts = [ 
-		{name: "open-sans",   url: "/fonts/OpenSans-Regular.ttf"   },
-		{name: "sarabun",     url: "/fonts/Sarabun-Regular.ttf"    },
-		{name: "roboto-mono", url: "/fonts/RobotoMono-Regular.ttf" }
-	]
-	
-	fonts.forEach( e => {
-		var f = new FontFace(e.name, "url(" + e.url + ")")
-		f.load().then( () => {
-			console.log("adding font " + f.family)
-			console.log(f)
-			document.fonts.add(f)
-		})
-	})
-	
-	document.body.style.fontFamily = "open-sans, sarabun, " +
-									"sans-serif, " +
-									"roboto-mono"
+	// 2. Create whole system's CSS
 
 	var css = `
 
@@ -162,7 +147,11 @@ Screen.start = function() {
 	document.getElementsByTagName("head")
 				[0].appendChild(style)
 
+	// 3. Create the launcher
+
 	Screen.createLauncher()
+	
+	// 4. Handle file dropping
 	
 	window.addEventListener("drop", async e => {
 		e.preventDefault()
@@ -180,6 +169,27 @@ Screen.start = function() {
 	})
 	
 	window.addEventListener("dragover", e => e.preventDefault() )
+
+	// 5. Load custom fonts
+	var fonts = [ 
+		{name: "open-sans",   url: "/fonts/OpenSans-Regular.ttf"   },
+		{name: "sarabun",     url: "/fonts/Sarabun-Regular.ttf"    },
+		{name: "roboto-mono", url: "/fonts/RobotoMono-Regular.ttf" }
+	]
+	
+	fonts.forEach( e => {
+		var f = new FontFace(e.name, "url(" + e.url + ")")
+		f.load().then( () => {
+			console.log("adding font " + f.family)
+			console.log(f)
+			document.fonts.add(f)
+		})
+	})
+	
+	document.body.style.fontFamily = "open-sans, sarabun, " +
+									"sans-serif, " +
+									"roboto-mono"
+
 }
 
 Screen.setDataType = function(name, mime) {

@@ -52,11 +52,7 @@ App.createFileManager = async function () {
 		}
 
 		// from this point, r is the file name
-
-		var location = "/service-data-create?name=" + r
-		var response = await fetch(location)
-		var detail   = await response.json()
-
+		var detail = await Storage.create(r)
 		if (detail.result == "OK") {
 			main.refresh()
 		}
@@ -64,11 +60,7 @@ App.createFileManager = async function () {
 
 	main.refresh = async function() {
 		Screen.clearElement(main)
-
-		var location = "/service-data-list"
-		var response = await fetch(location)
-		var detail   = await response.json()
-
+		var detail = await Storage.list()
 		if (detail.result == "OK") {
 			main.showFileList(detail.data)
 		}
@@ -137,7 +129,7 @@ App.createMemoApp = async function(file) {
 	}
 	
 	main.canvasWidth  = 960
-	main.canvasHeight = 960
+	main.canvasHeight = 480
 	
 	main.dotColor = "#eee"
 	main.dotSpace = 40
@@ -198,6 +190,7 @@ App.createMemoApp = async function(file) {
 					("contextmenu", e => e.preventDefault() )
 
 		canvas.THRESHOLD = 0.1
+		canvas.dots = [ ]
 
 		canvas.addEventListener("pointerdown", 
 			function handleStart(event) {
@@ -276,14 +269,22 @@ App.createMemoApp = async function(file) {
 						
 						if (main.tool == "eraser" && points.length > 1) {
 							var w = 16
+							/*
 							ctx.beginPath()
 							ctx.clearRect(
 									p.x - w / 2, 
 									p.y - w / 2, 
 									w, w)
-							
-							var dots = [ ]
-							
+							*/
+						   
+							ctx.globalCompositeOperation = 
+													'destination-out'
+							ctx.beginPath()
+							ctx.arc(p.x, p.y, w, 0, 2 * Math.PI)
+							ctx.fill()
+							ctx.globalCompositeOperation = 
+											'source-over'
+
 							var fx = parseInt(p.x / main.dotSpace)
 							var fy = parseInt(p.y / main.dotSpace)
 							
@@ -294,27 +295,25 @@ App.createMemoApp = async function(file) {
 							
 							var q = {x: fx * main.dotSpace,
 									y:  fy * main.dotSpace}
-							if (main.distance(p, q) < w) {
-								dots.push(q)
+							if (main.distance(p, q) <= w + 4) {
+								canvas.dots.push(q)
 							}
-							
-							/*
-							for (var x = -2; x <= 2; x++) {
-								for (var y = -2; y <= 2; y++) {
-									var q = { }
-									q.x = (fx + x) * main.dotSpace
-									q.y = (fy + y) * main.dotSpace
-									if (main.distance(p, q) < w) {
-										dots.push(q)
-									}
-								}
-							} */
-							
-							for (var r of dots) {
+
+							for (var r of canvas.dots) {
 								if (0 < r.x && r.x < main.canvasWidth &&
 									0 < r.y && r.y < main.canvasHeight) {
+									/*
 									ctx.beginPath()
 									ctx.clearRect(r.x - 4, r.y - 4, 8, 8)
+									*/
+									
+									ctx.globalCompositeOperation = 
+													'destination-out'
+									ctx.beginPath()
+									ctx.arc(r.x, r.y, 6, 0, 2 * Math.PI)
+									ctx.fill()
+									ctx.globalCompositeOperation = 
+													'source-over'
 									
 									ctx.beginPath()
 									ctx.arc(r.x, r.y, 4, 0, 2 * Math.PI)
@@ -361,6 +360,7 @@ App.createMemoApp = async function(file) {
 						console.log("Pointing")
 					}
 					points = [ ]
+					canvas.dots = [ ]
 				}
 
 				if (window.getSelection()) {
@@ -505,18 +505,7 @@ App.createMemoApp = async function(file) {
 		data.number = fileNumber
 		data.text = main.prepareContent()
 		console.log(data)
-
-		var location = "/service-data-update"
-		var payload = { }
-		payload.method = "POST"
-		payload.headers = { }
-		payload.headers["Content-Type"] = "application/json"
-		payload.body = JSON.stringify(data)
-
-		var response = await fetch(location, payload)
-		var detail   = await response.text()
-
-		console.log(detail)
+		await Storage.update(data)
 	})
 	
 	main.display = function(detail) {
@@ -551,7 +540,6 @@ App.createMemoApp = async function(file) {
 			}
 
 		})
-
 	}
 	
 	var originalFileName = ""     // for local file name
@@ -571,13 +559,10 @@ App.createMemoApp = async function(file) {
 	}
 	
 	if (typeof file == "number") {
-		fileNumber = file
-		var location = "/service-data-read?number=" + fileNumber
-		var response = await fetch(location)
-		var detail   = await response.json()
+		fileNumber = +file || 0
+		var detail = await Storage.read(fileNumber)
 		console.log(detail)
 		var buffer = detail.data[0].text
-		
 		if (buffer == null || buffer == "") {
 			buffer = "{}"
 		}
@@ -657,10 +642,9 @@ App.createTextEditor = async function(file) {
 	}
 
 	if (typeof file == "number") {
-		fileNumber = file
-		var location = "/service-data-read?number=" + fileNumber
-		var response = await fetch(location)
-		var detail   = await response.json()
+		fileNumber = +file || 0
+		var detail = await Storage.read(fileNumber)
+		
 		if (detail.data[0].text == null) {
 			detail.data[0].text = ""
 		}
@@ -686,19 +670,9 @@ App.createTextEditor = async function(file) {
 		data.number = fileNumber
 		data.text = editor.value
 
-		var location = "/service-data-update"
-		var payload = { }
-		payload.method = "POST"
-		payload.headers = { }
-		payload.headers["Content-Type"] = "application/json"
-		payload.body = JSON.stringify(data)
-
-		var response = await fetch(location, payload)
-		var detail   = await response.text()
-
+		var detail = Storage.update(data)
 		console.log(detail)
 	})
 
 	main.element.appendChild(editor)
 }
-
