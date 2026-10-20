@@ -2,6 +2,7 @@ var App = { }
 
 App.createFileManager = async function () {
 	var main = Screen.createWindow("File Manager")
+	main.element.style.width = "20rem"
 
 	main.showFileList = function(data) {
 
@@ -19,12 +20,16 @@ App.createFileManager = async function () {
 			// open.href = ""
 			open.innerHTML = "Open"
 			open.addEventListener("click", async event => {
+				Screen.openFile(parts[1], file.number)
+				
+				/*
 				if (parts[1] == "txt") {
 					await App.createTextEditor(file.number)
 				}
 				if (parts[1] == "memo") {
 					await App.createMemoApp(file.number)
 				}
+				*/
 			})
 
 			var line = document.createElement("section")
@@ -75,9 +80,9 @@ App.createMemoApp = async function(file) {
 	var main = Screen.createWindow("Memo")
 	var originalFileName = null
 
-	main.color = "rgba(10%, 10%, 99%, .75)"
-	main.color = "rgba(10%, 70%, 50%, .90)"
-	main.color = "dodgerblue"
+	main.color = "rgba(10%, 50%, 99%, .90)"
+	// main.color = "rgba(10%, 70%, 50%, .90)"
+	// main.color = "dodgerblue"
 
 	main.createTextArea = function() {
 		var editor = document.createElement("textarea")
@@ -191,6 +196,16 @@ App.createMemoApp = async function(file) {
 
 		canvas.THRESHOLD = 0.1
 		canvas.dots = [ ]
+		
+		canvas.addEventListener("click", e => {
+			console.log("click")
+			console.log(e) 
+		})
+		
+		canvas.addEventListener("auxclick", e => {
+			console.log("auxclick")
+			console.log(e) 
+		})
 
 		canvas.addEventListener("pointerdown", 
 			function handleStart(event) {
@@ -300,8 +315,8 @@ App.createMemoApp = async function(file) {
 							}
 
 							for (var r of canvas.dots) {
-								if (0 < r.x && r.x < main.canvasWidth &&
-									0 < r.y && r.y < main.canvasHeight) {
+								if (0 < r.x && r.x < canvas.width &&
+									0 < r.y && r.y < canvas.height) {
 									/*
 									ctx.beginPath()
 									ctx.clearRect(r.x - 4, r.y - 4, 8, 8)
@@ -336,7 +351,7 @@ App.createMemoApp = async function(file) {
 				if (event.pointerType == "pen") {
 					event.preventDefault()
 					// canvas.releasePointerCapture(event.pointerId)
-					console.log("handleFinish()")
+					// console.log("handleFinish()")
 					
 					if (points.length == 1) {
 						var p = points[0]
@@ -532,6 +547,15 @@ App.createMemoApp = async function(file) {
 				var c = main.createCanvas()
 				var image = document.createElement("img")
 				image.onload = function() {
+					var fixedWidth = 480
+					var ratio = fixedWidth / image.width
+					
+					c.width = image.width
+					c.height = image.height
+					
+					c.style.width  = fixedWidth + "px"
+					c.style.height = image.height * ratio + "px"
+
 					var ctx = c.getContext("2d")
 					ctx.drawImage(image, 0, 0, 
 							image.width, image.height)

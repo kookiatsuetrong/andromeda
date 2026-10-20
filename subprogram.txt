@@ -1,5 +1,4 @@
 
-Screen.getSize()					Get the web browser size.
 Screen.start()						Start the system.
 
 Screen.defaultWidth  = 600			Default width of window
@@ -16,6 +15,7 @@ Screen.openFile(mime, data)			Open file
 Screen.createWindow(text)
 Screen.createDialog(text)
 Screen.createInputDialog(text)
+TODO   createFileDialog()
 
 Screen.startMouseResizeWindow(event, pane)
 TODO   continueMouseResizeWindow(event)
@@ -33,6 +33,7 @@ Screen.startFingerMoveWindow(event, pane)
 Screen.continueFingerMoveWindow(event)
 Screen.finishFingerMoveWindow(event)
 
+Screen.getSize()					Get the web browser size.
 Screen.getActiveWindow()
 Screen.removeWindow(pane)
 Screen.activateWindow(pane)
@@ -46,19 +47,12 @@ Screen.addElement(pane, element)
 Screen.clearElement(pane)
 Screen.addStyle(css)
 Screen.addMenu(pane, text, f)
+Screen.changeMenu(pane, current, value)
 
-TODO   Screen.setBackground(photo)
+Screen.setBackground(photo)
 TODO   Screen.setCurtain(photo)
 
-
 Storage.list()
-Storage.save()
 Storage.read()
-Storage.find()
-
 Storage.create()
-Storage.insert()
 Storage.update()
-Storage.delete()
-       .search()
-

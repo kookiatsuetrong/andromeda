@@ -7,46 +7,9 @@
 	</head>
 	
 	<body>
-		<section class="background"></section>
+		
 	</body>
-	
-	<style>
-		* {
-			outline: none;
-		}
-		body {
-			margin: 0; 
-			padding: 0; 
-			border: none; 
-			font-family: sans-serif;
-			background-color: #fff386;
-			
-			font-size: 1rem;
-			min-height: 100dvh;
-			overflow: hidden;
-			
-			/*
-			background: linear-gradient(45deg, 
-					rgba(20%, 30%, 99%,  1), 
-					rgba( 0%, 99%, 70%,  .9));
-			background: linear-gradient(200deg, 
-					rgba( 0%, 50%, 99%, .75), 
-					rgba(50%,  0%, 99%, .75));
-			background: linear-gradient(45deg, 
-					rgba(20%, 99%, 80%, .75), 
-					rgba( 0%, 20%, 99%, .70),
-					rgba(99%, 10%, 40%, .80));
-			*/
-			
-			background:	linear-gradient(70deg, 
-							rgba(  0%, 20%, 99%, .40) 10%, 
-							rgba(  0%, 99%, 30%, .30),
-							rgba( 99%, 90%, 20%, .30),
-							rgba( 99%,  0%,  0%, .40)
-						);
-		}
-	</style>
-	
+		
 	<script src="/andromeda.js"></script>
 	
 	<script>
@@ -93,6 +56,9 @@
 			Screen.setDataType("Text Editor",  "text/plain")
 			
 			Screen.setExtension("Text Editor", "js")
+			Screen.setExtension("Text Editor", "txt")
+			Screen.setExtension("Text Editor", "java")
+			Screen.setExtension("Text Editor", "c")
 			Screen.setExtension("Memo",        "memo")
 			Screen.setDataType("Photo Viewer", "bmp")
 		})

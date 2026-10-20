@@ -1,11 +1,38 @@
+/*
+ * The starting file of Andromeda system.
+ * 
+ * Andromeda can be run in either mode:
+ * - desktop (full screen)
+ * - region  (section)
+ * 
+ * The desktop mode:
+ * - display as full screen
+ * - user can move any window
+ * - the launcher will be shown
+ * 
+ * The region mode:
+ * - non-full screen
+ * - fixed window
+ * - no launcher displayed
+ * 
+ * The mode can be changed by calling:
+ *   Screen.setMode("region")
+ *   Screen.setMode("desktop")
+ * 
+ * By default, Andromeda runs in the full screen mode.
+ * 
+ */
 
-// mouse click  --> pointerdown, mousedown
-// finger touch --> pointerdown, mousedown, touchstart
-// pen tap      --> pointerdown, mousedown, touchstart
-
-// mousedown     mousemove     mouseup         dblclick
-// touchstart    touchmove     touchend        (no)
-// pointerdown   pointermove   pointerup       (no)
+/* A quick note for user interaction
+ * 
+ * mouse click  --> pointerdown, mousedown
+ * finger touch --> pointerdown, mousedown, touchstart
+ * pen tap      --> pointerdown, mousedown, touchstart
+ *
+ * mousedown     mousemove     mouseup         dblclick
+ * touchstart    touchmove     touchend        (no)
+ * pointerdown   pointermove   pointerup       (no)
+ */
 
 var Screen = { }
 
@@ -17,6 +44,12 @@ Screen.windowNumber = 0
 Screen.defaultWidth  = 600
 Screen.defaultHeight = 400
 
+var andromeda = document.createElement("section")
+
+Screen.getDesktop = function() {
+	return andromeda
+}
+
 Screen.getSize = function() {
 	var result    = { }
 	result.width  = window.innerWidth
@@ -24,11 +57,152 @@ Screen.getSize = function() {
 	return result
 }
 
+var css = `
+
+body {
+	overflow: hidden;
+}
+
+.andromeda * {
+	outline: none;
+}
+
+.andromeda {
+	margin: 0;
+	padding: 0; 
+	border: none;
+	font-family: sans-serif;
+	background-color: #fff386;
+
+	font-size: 1rem;
+	min-height: 100dvh;
+	min-width: 100dvw;
+	display: block;
+	overflow: hidden;
+
+	/*
+	background: linear-gradient(45deg, 
+			rgba(20%, 30%, 99%,  1), 
+			rgba( 0%, 99%, 70%,  .9));
+	background: linear-gradient(200deg, 
+			rgba( 0%, 50%, 99%, .75), 
+			rgba(50%,  0%, 99%, .75));
+	background: linear-gradient(45deg, 
+			rgba(20%, 99%, 80%, .75), 
+			rgba( 0%, 20%, 99%, .70),
+			rgba(99%, 10%, 40%, .80));
+	*/
+
+	background:	linear-gradient(70deg, 
+					rgba(  0%, 20%, 99%, .40) 10%, 
+					rgba(  0%, 99%, 30%, .30),
+					rgba( 99%, 90%, 20%, .30),
+					rgba( 99%,  0%,  0%, .40)
+				);
+
+	background-size: cover;
+}
+
+.andromeda .background {
+	width: 100dvw;
+	height: 100dvh;
+	background-image: url("/background-gray.png");
+	background-size: cover;
+}
+
+.andromeda a {
+	text-decoration: none;
+	color: #aaa;
+}
+.andromeda a:visited {
+	color: #aaa;
+}
+.andromeda a:hover {
+	color: #333;
+	cursor: pointer;
+}
+
+.andromeda button {
+	background: #ccc;
+	color: #333;
+	border: .1rem solid #aaa;
+	padding: .5rem 1rem;
+	border-radius: .35rem;
+}
+.andromeda button:hover {
+	background: #eee;
+}
+.andromeda button:active {
+	border: .1rem solid #ddd;
+}
+.andromeda .window .bar img {
+	border-radius: 1rem;
+	padding: .1rem;
+}
+.andromeda .window .bar img:hover {
+	background: rgba(0, 0, 0, .25);
+	cursor: pointer;
+}
+.andromeda .menu-item:hover {
+	color: #333;
+	cursor: pointer;
+}
+
+.andromeda .launcher img {
+	transition: transform .1s linear;
+}
+.andromeda .launcher img:hover {
+	transform: scale(1.25);
+}
+.andromeda .launcher img:active {
+	transform: none;
+}
+.andromeda .menu-item {
+	color: #ccc;
+	transition: color .1s linear;
+	margin-left: 1rem;
+}
+
+.andromeda .window.backdrop {
+	position: absolute;
+	background: rgba(0, 0, 0, .66);
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+.andromeda .dialog {
+	position: absolute;
+	background: none;
+	border-radius: 1.5rem;
+	border: 0.5rem solid rgba(0, 0, 0, .01);
+	box-shadow: 0 0 .1rem rgba(0, 0, 0, .25),
+				0 0 4rem rgba(255,255,255, .8);
+	color: #333;
+	display: block;
+	overflow: auto;
+}
+`
+
+
 Screen.start = function() {
 
 	console.log("Starting Operating System")
+	
+	// 0. Create the desktop
+	
+	andromeda.classList.add("andromeda")
+	document.body.appendChild(andromeda)
 
-	// 1. Handle mouse, touch, and pen events
+	// 1. Create whole system's CSS
+
+	var style = document.createElement("style")
+	style.appendChild(document.createTextNode(css))
+	document.getElementsByTagName("head")
+				[0].appendChild(style)
+
+
+	// 2. Handle mouse, touch, and pen events
 	
 	/*
 	window.addEventListener("touchstart", e => {
@@ -57,98 +231,8 @@ Screen.start = function() {
 	window.addEventListener("touchend", 
 				e => Screen.finishFingerMoveWindow(e))
 
-	// 2. Create whole system's CSS
-
-	var css = `
-
-		.background {
-			width: 100dvw;
-			height: 100dvh;
-			background-image: url("/background-gray.png");
-			background-size: cover;
-		}
-		a {
-			text-decoration: none;
-			color: #aaa;
-		}
-		a:visited {
-			color: #aaa;
-		}
-		a:hover {
-			color: #333;
-			cursor: pointer;
-		}
-		
-		button {
-			background: #ccc;
-			color: #333;
-			border: .1rem solid #aaa;
-			padding: .5rem 1rem;
-			border-radius: .35rem;
-		}
-		button:hover {
-			background: #eee;
-		}
-		button:active {
-			border: .1rem solid #ddd;
-		}
-		
-		.window .bar img {
-			border-radius: 1rem;
-			padding: .1rem;
-		}
-
-		.window .bar img:hover {
-			background: rgba(0, 0, 0, .25);
-			cursor: pointer;
-		}
-		.launcher img {
-			transition: transform .1s linear;
-		}
-		.launcher img:hover {
-			transform: scale(1.25);
-		}
-		.launcher img:active {
-			transform: none;
-		}
-		.menu-item {
-			color: #ccc;
-			transition: color .1s linear;
-			margin-left: 1rem;
-		}
-		.menu-item:hover {
-			color: #333;
-			cursor: pointer;
-		}
-	
-		.window.backdrop {
-			position: absolute;
-			background: rgba(0, 0, 0, .66);
-			top: 0px;
-			left: 0px;
-			width: 100%;
-			height: 100%;
-		}
-		.dialog {
-			position: absolute;
-			background: none;
-			border-radius: 1.5rem;
-			border: 0.5rem solid rgba(0, 0, 0, .01);
-			box-shadow: 0 0 .1rem rgba(0, 0, 0, .25),
-						0 0 4rem rgba(255,255,255, .8);
-			color: #333;
-			display: block;
-			overflow: auto;
-		}
-		`
-
-	var style = document.createElement("style")
-	style.appendChild(document.createTextNode(css))
-	document.getElementsByTagName("head")
-				[0].appendChild(style)
-
 	// 3. Create the launcher
-
+	
 	Screen.createLauncher()
 	
 	// 4. Handle file dropping
@@ -171,6 +255,7 @@ Screen.start = function() {
 	window.addEventListener("dragover", e => e.preventDefault() )
 
 	// 5. Load custom fonts
+	
 	var fonts = [ 
 		{name: "open-sans",   url: "/fonts/OpenSans-Regular.ttf"   },
 		{name: "sarabun",     url: "/fonts/Sarabun-Regular.ttf"    },
@@ -186,7 +271,7 @@ Screen.start = function() {
 		})
 	})
 	
-	document.body.style.fontFamily = "open-sans, sarabun, " +
+	andromeda.style.fontFamily = "open-sans, sarabun, " +
 									"sans-serif, " +
 									"roboto-mono"
 
@@ -425,7 +510,7 @@ Screen.startMouseResizeWindow = function(event, pane) {
 Screen.startMouseMoveWindow = function(event, pane) {
 	event.preventDefault()
 	event.stopPropagation()
-	document.body.style.cursor = "move"
+	andromeda.style.cursor = "move"
 	
 	window.moving  = pane
 	window.movingX = event.screenX
@@ -464,7 +549,7 @@ Screen.finishMouseMoveWindow = function(event) {
 	if (window.moving == null) { }
 	if (window.moving != null) {
 		event.preventDefault()
-		document.body.style.cursor = "default"
+		andromeda.style.cursor = "default"
 		window.moving = null
 	}
 	if (window.resizing == null) { }
@@ -609,7 +694,6 @@ Screen.removeWindow = function(pane) {
 	}
 
 	if (found >= 0) {
-
 		for (var i = found; i < Screen.windows.length; i++) {
 			Screen.windows[i] = Screen[i + 1]
 		}
@@ -620,7 +704,7 @@ Screen.removeWindow = function(pane) {
 
 		setTimeout( function() {
 			pane.element.style.display = "none"
-			document.body.removeChild(pane.element)
+			andromeda.removeChild(pane.element)
 		}, 200)
 
 	}
@@ -703,7 +787,8 @@ Screen.createLauncher = function() {
 	panel.element.appendChild(bar)
 
 	Screen.windows.push(panel)
-	document.body.appendChild(panel.element)
+	var desktop = Screen.getDesktop()
+	desktop.appendChild(panel.element)
 
 	panel.element.style.opacity = 0
 	panel.element.style.display = "block"
@@ -762,6 +847,19 @@ Screen.changeMenu = function(pane, current, value) {
 			e.innerText = value
 		}
 	}
+}
+
+Screen.setBackground = function(photo) {
+	if (photo == null) {
+		andromeda.style.background = "linear-gradient(70deg,    " +
+								"rgba(  0%, 20%, 99%, .40) 10%, " +
+								"rgba(  0%, 99%, 30%, .30),     " +
+								"rgba( 99%, 90%, 20%, .30),     " +
+								"rgba( 99%,  0%,  0%, .40)      "
+		return
+	}
+	
+	andromeda.style.backgroundImage = "url(" + photo + ")"
 }
 
 document.write("<script src='/andromeda-screen.js'></script>")
