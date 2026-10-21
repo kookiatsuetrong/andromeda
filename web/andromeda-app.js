@@ -77,8 +77,15 @@ App.createMemoApp = async function(file) {
 
 	main.createTextArea = function(text) {
 		var editor = document.createElement("textarea")
+		
+		if (text == null) text = ""
+		editor.value = text
+		editor.spellcheck = false
+		editor.autofocus = true
+		editor.placeholder = "Text"
+		
 		editor.style.display      = "block"
-		editor.style.padding      = "1.25rem 1.75rem .5rem 1.75rem"
+		editor.style.padding      = "1.25rem 1.75rem 1.25rem 1.75rem"
 		editor.style.margin       = "0 auto"
 		editor.style.marginBottom = ".5rem"
 		editor.style.border       = "none"
@@ -88,27 +95,17 @@ App.createMemoApp = async function(file) {
 		editor.style.overflow     = "hidden"
 		// editor.style.width     = "calc(100% - 1.50rem)"
 		editor.style.width        = "26.5rem"
-		editor.style.minHeight    = "2rem"
+		// editor.style.minHeight = "2rem"
+		editor.style.height       = "auto"
 		editor.style.lineHeight   = "1.5rem"
 		editor.style.color        = "#333"
 		editor.style.fontSize     = "1rem"
 		editor.style.fontFamily   = "roboto-mono, sarabun, monospace"
 		editor.style.borderRadius = ".5rem"
-		editor.style.tabSize = 4
-
-		editor.spellcheck = false
-		editor.autofocus = true
-		editor.focus()
-		editor.placeholder = "Text"
-
-		if (text == null) text = ""
-		var lines = text.split("\n")
-		editor.style.height = lines.length * 1.5 + .8 + "rem"
-		editor.value = text
+		editor.style.tabSize      = 4
+		editor.style.fieldSizing  = "content"
 		
-
-		Screen.addElement(main, editor)
-
+		/*
 		editor.addEventListener("keyup", e => {
 			var text = editor.value
 			var lines = text.split("\n")
@@ -117,6 +114,7 @@ App.createMemoApp = async function(file) {
 			h += 12
 			editor.style.height = h + "px"
 		})
+		*/
 
 		editor.addEventListener("keydown", e => {
 			if (e.key == "Tab") {
@@ -127,6 +125,8 @@ App.createMemoApp = async function(file) {
 			}
 		})
 
+		Screen.addElement(main, editor)
+		
 		return editor
 	}
 	
