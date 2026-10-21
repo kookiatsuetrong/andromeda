@@ -18,7 +18,7 @@ Storage.create = async function(name) {
 	var location = "/service-data-create?name=" + name
 	var response = await fetch(location)
 	var detail   = await response.json()
-	return async
+	return detail
 }
 
 Storage.update = async function(data) {
@@ -26,13 +26,22 @@ Storage.update = async function(data) {
 	// data must be in the following format:
 	// data.number = the unique number of this data file
 	// data.text   = the data in text or json
+	// var encoded = "number=" + data.number + "&text=" + data.text
+	var form = new FormData()
+	form.append("number", data.number)
+	form.append("text",   data.text)
+	
+	var payload = { }
+	payload.method = "POST"
+	payload.body = form
+	
 	
 	var location = "/service-data-update"
 	var payload = { }
 	payload.method = "POST"
-	payload.headers = { }
-	payload.headers["Content-Type"] = "application/json"
-	payload.body = JSON.stringify(data)
+	// payload.headers = { }
+	// payload.headers["Content-Type"] = "application/x-www-form-urlencoded"
+	payload.body = form
 
 	var response = await fetch(location, payload)
 	var detail   = await response.text()
@@ -68,4 +77,3 @@ Storage.insert = function(detail) {
 Storage.delete = function(detail) {
 	
 }
-

@@ -21,15 +21,6 @@ App.createFileManager = async function () {
 			open.innerHTML = "Open"
 			open.addEventListener("click", async event => {
 				Screen.openFile(parts[1], file.number)
-				
-				/*
-				if (parts[1] == "txt") {
-					await App.createTextEditor(file.number)
-				}
-				if (parts[1] == "memo") {
-					await App.createMemoApp(file.number)
-				}
-				*/
 			})
 
 			var line = document.createElement("section")
@@ -84,10 +75,10 @@ App.createMemoApp = async function(file) {
 	// main.color = "rgba(10%, 70%, 50%, .90)"
 	// main.color = "dodgerblue"
 
-	main.createTextArea = function() {
+	main.createTextArea = function(text) {
 		var editor = document.createElement("textarea")
 		editor.style.display      = "block"
-		editor.style.padding      = "1.25rem 1.75rem .75rem 1.75rem"
+		editor.style.padding      = "1.25rem 1.75rem .5rem 1.75rem"
 		editor.style.margin       = "0 auto"
 		editor.style.marginBottom = ".5rem"
 		editor.style.border       = "none"
@@ -97,7 +88,7 @@ App.createMemoApp = async function(file) {
 		editor.style.overflow     = "hidden"
 		// editor.style.width     = "calc(100% - 1.50rem)"
 		editor.style.width        = "26.5rem"
-		editor.style.minHeight    = "3.5rem"
+		editor.style.minHeight    = "2rem"
 		editor.style.lineHeight   = "1.5rem"
 		editor.style.color        = "#333"
 		editor.style.fontSize     = "1rem"
@@ -109,6 +100,12 @@ App.createMemoApp = async function(file) {
 		editor.autofocus = true
 		editor.focus()
 		editor.placeholder = "Text"
+
+		if (text == null) text = ""
+		var lines = text.split("\n")
+		editor.style.height = lines.length * 1.5 + .8 + "rem"
+		editor.value = text
+		
 
 		Screen.addElement(main, editor)
 
@@ -530,13 +527,13 @@ App.createMemoApp = async function(file) {
 		detail.data.forEach( e => {
 
 			if (e.type == "text") {
-				var t = main.createTextArea()
 				var buffer = ""
 				for (var s of e.data) {
 					buffer += s
 				}
 				// t.value = decodeURIComponent(buffer)
-				t.value = main.decode(buffer)
+				var text = main.decode(buffer)
+				main.createTextArea(text)
 			}
 
 			if (e.type == "photo") {
@@ -590,6 +587,8 @@ App.createMemoApp = async function(file) {
 		if (buffer == null || buffer == "") {
 			buffer = "{}"
 		}
+		// console.log("The buffer is ")
+		// console.log(buffer)
 		main.display(JSON.parse(buffer))
 	}
 	
