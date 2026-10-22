@@ -214,7 +214,7 @@ Screen.createWindow = function(text) {
 	detail.element.style.position   = "absolute"
 	detail.element.style.background = "none"
 	detail.element.style.borderRadius = "1.5rem"
-	detail.element.style.border = ".5rem solid rgba(0, 0, 0, .001)"
+	detail.element.style.border = ".5rem solid rgba(255,255,255, .25)"
 	detail.element.style.boxShadow = "0 0 .1rem rgba(0,0,0, .2)" +
 							", 0 0 4rem rgba(255, 255, 255, .8)"
 	detail.element.style.color     = "#333"

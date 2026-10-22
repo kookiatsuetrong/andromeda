@@ -15,6 +15,10 @@ body {
 .andromeda * {
 	outline: none;
 }
+.andromeda *::selection {
+	background: rgba(0,0,0,.25);
+	color: white;
+}
 
 .andromeda {
 	margin: 0;
@@ -213,8 +217,8 @@ Screen.start = function() {
 	fonts.forEach( e => {
 		var f = new FontFace(e.name, "url(" + e.url + ")")
 		f.load().then( () => {
-			console.log("adding font " + f.family)
-			console.log(f)
+			// console.log("adding font " + f.family)
+			// console.log(f)
 			document.fonts.add(f)
 		})
 	})

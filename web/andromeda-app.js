@@ -1,8 +1,58 @@
 var App = { }
 
+App.createUserApp = async function() {
+	var main = Screen.createWindow("User")
+	main.element.style.width = "25rem"
+	main.element.style.height = "12rem"
+	Screen.centerWindow(main)
+	
+	var user = await System.getCurrentUser()
+	
+	var userName = "(Unknown)"
+	var userSignature = ""
+	var userPhoto = "/uploaded/empty-user.png"
+	
+	if (user.result == "OK") {
+		userName = user.firstName + " " + user.lastName
+		userSignature = "@" + user.signature
+		userPhoto = "/uploaded/user-" + user.identifier + ".png"
+	}
+	
+	var container = main.element.querySelector(".container")
+	
+	container.style.display = "grid"
+	container.style.gridTemplateColumns = "10rem 1fr"
+	
+	var photo = document.createElement("img")
+	photo.style.width = "8rem"
+	photo.style.height = "8rem"
+	photo.style.lineHeight = "0"
+	photo.style.padding = "0"
+	photo.style.border = ".2rem solid #bbb"
+	photo.style.borderRadius = "10rem"
+	photo.src = userPhoto
+	container.appendChild(photo)
+	
+	var section = document.createElement("section")
+	
+	var name = document.createElement("h3")
+	name.style.color = "#333"
+	name.innerText = userName
+	section.appendChild(name)
+	
+	var signature = document.createElement("pre")
+	signature.style.color = "#888"
+	signature.innerText = userSignature
+	section.appendChild(signature)
+	
+	container.appendChild(section)
+	
+}
+
 App.createFileManager = async function () {
 	var main = Screen.createWindow("File Manager")
 	main.element.style.width = "20rem"
+	Screen.centerWindow(main)
 
 	main.showFileList = function(data) {
 
